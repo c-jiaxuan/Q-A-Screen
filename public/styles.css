@@ -1,0 +1,207 @@
+body {
+    font-family: Arial, sans-serif;
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+}
+
+body::before {
+    content: "";
+    background: url('./Images/ACM_bg.png') no-repeat center center;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    opacity: 0.5; /* Adjust transparency here */
+    z-index: -1; /* Place it behind the content */
+}
+
+.logo-container {
+    position: absolute; /* Positions it relative to the viewport */
+    top: 20px; /* Distance from the top */
+    left: 20px; /* Distance from the left */
+    z-index: 10; /* Keeps it above other elements */
+}
+
+.logo {
+    width: 200px; /* Adjust the width of the logo */
+    height: auto; /* Maintain the aspect ratio */
+}
+
+.controls-container {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    padding: 8px;
+    width: 10%;
+    max-width: 250px;
+    background: #f1f1f1;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.input-area-container {
+    width: 100%;
+    height: 7%;
+    border-radius: 8px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-area {
+    width: 85%;
+    height: 65%;
+    padding: 8px;
+    font-size: 24px;
+    border: none;
+}
+
+.send-button {
+    width: 15%;
+    height: 80%;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.send-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.send-button:hover img {
+    content: url('./Images/Control_Signs/Send_Hover.png');
+}
+
+.speak-button-container {
+    height: 7%;
+    display: flex; 
+    flex-direction: row; 
+    justify-content: center;
+}
+
+.chat-container {
+    position: relative;
+    top: 2vh;
+    left:40%;
+    padding: 8px;
+    height: 95%;
+    width: 40%;
+    background: #f1f1f1;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex; 
+    flex-direction: column; 
+    justify-content: flex-end;
+    z-index: 1
+}
+
+.chat-history-container {
+    overflow-y: auto;
+    height: 100%;
+    padding: 15px;
+    display: flexbox;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.message {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+.message.user {
+    text-align: right;
+}
+.message.bot {
+    text-align: left;
+}
+.message span {
+    display: inline-block;
+    padding: 10px;
+    border-radius: 10px;
+}
+.message.user span {
+    background: #ffffff;
+    color: rgb(32, 32, 32);
+}
+.message.bot span {
+    background: #e92222;
+    color: rgb(255, 255, 255);
+}
+.message-time {
+    font-size: 18px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.button {
+    position: relative;
+    padding: 10px 15px;
+    margin: 5px 0;
+    height: auto;
+    width: 100%;
+    background: #e92222;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: "Inter", sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center; /* Vertically centers the content */
+    justify-content: flex-start; /* Horizontally centers the content */
+    text-align: center;
+    gap: 10px;
+    bottom: 0;
+}
+
+.button img {
+    width: 20%;
+    height: auto;
+}
+
+.button span {  
+    flex-grow: 1; /* Allow text to occupy remaining space */
+    text-align: center;
+}
+
+.button:hover {
+    background: #ab1a1a;
+}
+
+.button1 {
+    height: 100%;
+    width: 35%;
+    border-radius: 90px;
+}
+
+#AIPlayerWrapper {
+    position: fixed;
+    height: 2200px;
+    width: 1500px;
+    bottom: -115%;
+    left: -15%;
+}
+
+.AIControlContainer {
+    display: block;
+    margin-left: auto;
+    margin-right: auto; 
+	position: fixed; 
+	top: 100px; 
+	right: 100px;
+}
+
+.AIControlContainer label {
+    font-size: 24px;
+}

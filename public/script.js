@@ -1,17 +1,35 @@
 const wrapper = document.getElementById('AIPlayerWrapper');
-const authServer = 'https://account.aistudios.com';
+// const authServer = 'https://account.aistudios.com';
 const AI_PLAYER = new AIPlayer(wrapper);
 const appId = 'deepbrain.io';
 const userKey = 'bb872cb0-c6da-4c32-b68d-15ff95679837';
 
+const authServer = 'https://account.deepbrain.io';
+
 AI_PLAYER.setConfig({
   authServer: authServer,
-  midServer: 'https://aimid.deepbrain.io/',
+  midServer: 'https://aimid.deepbrain.io',
   // resourceServer: 'https://resource.deepbrainai.io',
   // backendServer: 'https://backend.deepbrainai.io',
 });
 
-const DATA = {};
+// AI_PLAYER.setConfig({
+//   authServer: authServer,
+//   midServer: 'https://aimid.deepbrain.io/',
+//   // resourceServer: 'https://resource.deepbrainai.io',
+//   // backendServer: 'https://backend.deepbrainai.io',
+// });
+
+const DATA = {
+  appId: "",
+  clientToken: "",
+  verifiedToken: "",
+  tokenExpire: "",
+  maxTextLength: "",
+  ai: "", // available AI List
+  language: "", // AI Speak Language
+  texts: [], // AI Speak List
+};
 
 initSample();
 
@@ -33,30 +51,64 @@ async function initSample() {
 // =========================== AIPlayer Setup ================================ //
 
 async function generateClientToken() {
-  const result = await makeRequest(
-    'GET',
-    `${authServer}/api/aihuman/generateClientToken?appId=${appId}&userKey=${userKey}`,
-  );
+  const result = await makeRequest("GET", "/api/generateJWT");
+  console.log("Generate Token");
+  if (result) {
+    console.log('generateClientToken', result)
 
-  if (result?.succeed) {
+    // check request success
     DATA.clientToken = result.token;
     DATA.appId = result.appId;
-  } else {
-    console.log('generateClientToken Error:', result);
+  } 
+  else 
+  {
+    console.log("Error: " + result?.error);
   }
 }
+
+// async function generateClientToken() {
+//   const result = await makeRequest(
+//     'GET',
+//     `${authServer}/api/aihuman/generateClientToken?appId=${appId}&userKey=${userKey}`,
+//   );
+
+//   if (result?.succeed) {
+//     DATA.clientToken = result.token;
+//     DATA.appId = result.appId;
+//   } else {
+//     console.log('generateClientToken Error:', result);
+//   }
+// }
 
 async function generateVerifiedToken() {
-  const result = await AI_PLAYER.generateToken({ appId: DATA.appId, token: DATA.clientToken });
+  if (!DATA.appId || !DATA.clientToken) return;
+  console.log("Verify Token");
+  const result = await AI_PLAYER.generateToken
+  ({
+    appId: DATA.appId,
+    token: DATA.clientToken,
+  });
 
-  if (result?.succeed) {
+  if (result?.succeed) 
+  {
     DATA.verifiedToken = result.token;
     DATA.tokenExpire = result.tokenExpire;
-    DATA.defaultAI = result.defaultAI;
-  } else {
-    console.log('generateVerifiedToken Error: ' + result);
-  }
+  } 
+  else 
+    DATA.verifiedToken = "";
 }
+
+// async function generateVerifiedToken() {
+//   const result = await AI_PLAYER.generateToken({ appId: DATA.appId, token: DATA.clientToken });
+
+//   if (result?.succeed) {
+//     DATA.verifiedToken = result.token;
+//     DATA.tokenExpire = result.tokenExpire;
+//     DATA.defaultAI = result.defaultAI;
+//   } else {
+//     console.log('generateVerifiedToken Error: ' + result);
+//   }
+// }
 
 // if token is expired, get refresh clientToken, verifiedToken
 async function refreshTokenIFExpired() {

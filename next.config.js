@@ -7,7 +7,7 @@ const nextConfig = {
     return [
       {
         source: "/",
-        destination: "/SingPostAI.html",
+        destination: "/index.html",
         permanent: true,
       },
     ];

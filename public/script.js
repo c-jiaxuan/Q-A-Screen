@@ -52,7 +52,6 @@ async function generateVerifiedToken() {
     DATA.tokenExpire = result.tokenExpire;
   } else {
     console.log('generateVerifiedToken Error:', result);
-    showPop('generateVerifiedToken Error', result.error);
     DATA.verifiedToken = '';
   }
 }

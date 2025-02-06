@@ -7,11 +7,11 @@ const nextConfig = {
     return [
       {
         source: "/",
-        destination: "/index.html",
+        destination: "/demo.html",
         permanent: true,
       },
     ];
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

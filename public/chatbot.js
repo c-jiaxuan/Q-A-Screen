@@ -156,6 +156,20 @@ function sendMessage() {
     botResponse(message);
 }
 
+function sendMessage(message){
+    console.log("Sending message to bot");
+
+    // Add user message
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user';
+    userMessage.innerHTML = `<span>${message}</span><div class="message-time">${dateString} ${timeString}</div>`;
+    chatBody.appendChild(userMessage);
+
+    userInput.value = '';
+
+    botResponse(message);
+}
+
 // Takes in response from user input and replies based on input
 // Takes in a bool 'prompt' for whether to prompt the user for more input
 function botResponse(response) {
@@ -175,6 +189,10 @@ function botResponse(response) {
         var bot_response = postAPI(response, bot_tone);
         prompt = false;
     }
+
+    showRecordBtn(false);
+    showTalkBtn(false);
+    showProcessingBtn(true);
 
     if (bot_reply != null) {
         setTimeout(() => {
@@ -203,6 +221,10 @@ function botResponse(response) {
             chatBody.scrollTop = chatBody.scrollHeight;
         });
     }
+
+    showRecordBtn(true);
+    showTalkBtn(false);
+    showProcessingBtn(false);
 }
 
 // Takes in a message to be sent by the bot

@@ -1,8 +1,11 @@
 const wrapper = document.getElementById('AIPlayerWrapper');
 const authServer = 'https://account.aistudios.com';
 const AI_PLAYER = new AIPlayer(wrapper);
-const appId = 'deepbrain.io';
-const userKey = 'bb872cb0-c6da-4c32-b68d-15ff95679837';
+//const appId = 'deepbrain.io';
+//const userKey = 'bb872cb0-c6da-4c32-b68d-15ff95679837';
+
+const appId = 'nba.web.demo';
+const userKey = '6d6dd666-b054-49e0-9342-e523e4dec1c6';
 
 AI_PLAYER.setConfig({
   authServer: authServer,

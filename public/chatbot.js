@@ -6,23 +6,36 @@ class AI_Message {
     }
 }
 
-var substring_1 = "tang shipwreck";
-var substring_2 = "pagoda";
+var substring_1 = "prisoners of war";
+var substring_2 = "liberation";
 
 let botMessages = {};   // Dictionary to store all preset bot messages
 botMessages["start_msg"] = new AI_Message("Hello! How can I help you for this tour today?", "G05");
-botMessages["tang_shipwreck_response"] = new AI_Message("The Tang Shipwreck, discovered in 1998 off Sumatra, was a 9th-century Arab ship carrying a vast cargo of ceramics, glass, and other goods. This highlights Southeast Asia’s role in global trade along the Maritime Silk Route. The variety of ceramics, including Changsha wares, Yue celadons, and white wares from northern China, illustrates the competitiveness of the Chinese ceramics industry. The Tang Shipwreck Collection is now part of the Asian Civilisations Museum’s “Trade and the Maritime Silk Routes” exhibit, showcasing masterpieces of Asian export art from the 9th to the early 20th century.", "G02");
-botMessages["pagoda_response"] = new AI_Message("Pagoda Odyssey 1915: From Shanghai to San Francisco reunites 84 hand-carved model pagodas for the first time in over a century. Originally made in Shanghai, they traveled to San Francisco for the 1915 Panama-Pacific International Exposition, which attracted over 18 million visitors. The models, based on real structures, showcase the diversity of iconic pagodas from different regions and historical periods, offering a glimpse of China’s rich architectural heritage. The exhibition, complemented by Towers of Faith (a photography display) and Journey into the Pagoda (a virtual reality experience), will also feature public programs like weekend festivals, curator-led tours, and talks.", "G02");
+botMessages["pow_response"] = new AI_Message("Before the war, Changi had been a formidable military garrison, but with surrender it now became a place of isolation and numbing drudgery for thousands of new prisoners of war (POWs). The Japanese left the day-to-day running of the camps to the prisoners due to their sheer numbers, communicating instead through their officers or appointed representatives. To keep the camps in a liveable state, laborious chores and duties were shared among internees, from daily jobs like cooking and cleaning to the disposal of night soil. Precious little time was left over for personal activities before the lights went out each night. For the internees of Changi, the prospect of imprisonment was grim, but they were determined to endure what lay ahead.", "G02");
+botMessages["liberation_response"] = new AI_Message("By mid-1945, Germany had surrendered and the Allied forces were poised for an invasion of Japan. Just days after atomic bombs devastated the Japanese cities of Hiroshima and Nagasaki, Emperor Hirohito formally announced the unconditional surrender of all Japanese forces on 15 August 1945. Stunned by their defeat, some Japanese soldiers did not immediately obey their orders, unable to accept the shame of surrender. All the soldiers were eventually imprisoned as the Allied POWs had been in 1942. The internees, who had by now waited three and a half years for liberation, experienced everything from joy to relief. The Union Jack, carefully hidden from the Japanese during imprisonment, was raised once more as Allied soldiers returned to Singapore.", "G02");
 botMessages["default_msgs"] = [new AI_Message("I am not sure what you have sent, please try again."),
                                 new AI_Message("I don't quite understand what you are saying, please try again."),
                                 new AI_Message("I am sorry but can you please repeat the question?")
                                 ];
+botMessages["followup_prompt"] = new AI_Message("Here are some follow up questions you might be interested to ask!", "G02");
 botMessages["greeting_msg"] = new AI_Message("Hi! Let me know if you have any questions, you can input your questions into the input box, or using the \"Speak to AI\" button", "G02");
 botMessages["prompt_msgs"] = [new AI_Message("Let me know if you require any further help!", "G04"),
                             new AI_Message("If you have any other questions, don't hestiate to ask me!")
                             ];
 
-var bot_tone = "Professional";
+// LLMs API Settings
+// Change these to change the LLMs response
+var bot_app = "sgroots"; // Don't change this
+var bot_tone = "Succinct"; // Professional, Casual, Enthusiastic, Informational, Funny, Succinct
+var bot_format = "Summary"; // Summary, Report, Bullet Points, LinkedIn Post, Email
+var bot_language = "English";
+var bot_followup = true;
+
+var llm_summarise_api_url = 'https://gramener.com/docsearch/summarize';
+
+// Used to store followup questions
+var g_bot_response = null;
+var g_follow_up_questions = null;
 
 // True = server is open to synthesize, False = server is occupied
 // The flag to control execution
@@ -150,16 +163,16 @@ function botResponse(response) {
     var prompt = true;
     var lowerCase_response = response.toLowerCase();
     if (lowerCase_response.includes(substring_1)) {
-        bot_reply = botMessages["tang_shipwreck_response"];
+        bot_reply = botMessages["pow_response"];
     }
     else if (lowerCase_response.includes(substring_2)) {
-        bot_reply = botMessages["pagoda_response"];
+        bot_reply = botMessages["liberation_response"];
     }
     else {
         // botMsg = getRandomElement(botMessages["default_msgs"]);
         // bot_reply = botMsg.message;
         // bot_gst = botMsg.gesture;
-        var response = postAPI(response, bot_tone);
+        var bot_response = postAPI(response, bot_tone);
         prompt = false;
     }
 
@@ -175,7 +188,7 @@ function botResponse(response) {
             let i = 0;
             const interval = setInterval(() => {
                 if (i < bot_reply.message.length) {
-                    botSpan.textContent += bot_reply.message[i];
+                    botSpan.innerHTML += bot_reply.message[i];
                     i++;
                 } else {
                     clearInterval(interval);
@@ -196,43 +209,73 @@ function botResponse(response) {
 function botMessage(setMessage, gesture) {
     setTimeout(() => {
         speak(setMessage.toString(), gesture);
-        const botMessage = document.createElement('div');
-        botMessage.className = 'message bot';
-        botMessage.innerHTML = `<span></span><div class="message-time">${dateString} ${timeString}</div>`;
-        chatBody.appendChild(botMessage);
-        const botSpan = botMessage.querySelector('span');
+        const botMessageElement = document.createElement('div');
+        botMessageElement.className = 'message bot';
+        botMessageElement.innerHTML = `<span></span><div class="message-time">${dateString} ${timeString}</div>`;
+        chatBody.appendChild(botMessageElement);
+        const botSpan = botMessageElement.querySelector('span');
 
         let i = 0;
+        let plainText = ""; // Store raw text for typing effect
+
         const interval = setInterval(() => {
             if (i < setMessage.length) {
-                botSpan.textContent += setMessage[i];
+                plainText += setMessage[i]; // Type character by character
+                botSpan.textContent = plainText; // Show plain text while typing
                 i++;
             } else {
                 clearInterval(interval);
+
+                // After typing finishes, swap to HTML with bold formatting
+                botSpan.innerHTML = setMessage.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+                if (g_follow_up_questions != null) {
+                    const followupMessageElemenet = document.createElement('div');
+                    followupMessageElemenet.className = 'message bot';
+                    followupMessageElemenet.innerHTML = `<span></span><div class="message-time">${dateString} ${timeString}</div>`;
+                    chatBody.appendChild(followupMessageElemenet);
+                    const followupSpan = followupMessageElemenet.querySelector('span');
+
+                    let header = document.createElement("p");
+                    header.textContent = "Some common follow-up questions:";
+                    header.style.fontWeight = "bold"; // Make header bold
+                    followupSpan.append(header);
+                    
+                    // Loop through follow-up questions and create bullet points
+                    g_follow_up_questions.forEach(question => {
+                        let li = document.createElement("li");
+                        li.textContent = question;
+                        followupSpan.appendChild(li);
+                    });
+                    console.log("Follow up questions found, sending follow up question...");
+                    //botMessage(g_follow_up_questions[0]);
+                    g_follow_up_questions = null;
+                }
             }
-        }, bot_typing_speed)
+        }, bot_typing_speed);
 
         // Scroll to the bottom
         chatBody.scrollTop = chatBody.scrollHeight;
     });
 }
 
+
+
 function postAPI(message, tone) {
     console.log("posting API...");
 
-    const url = 'https://gramener.com/docsearch/summarize';
     const payload = {
-        "app": "sgroots",
+        "app": bot_app,
         "q": message,
         "context": "Add context from matches. Use the format:\n\nDOC_ID: 1\nTITLE: (title)\n(page_content)\n\nDOC_ID: 2\nTITLE: ...\n...",
-        "Followup": 1,
-        "Tone": tone,
-        "Format": "Summary",
-        "Language": "English"
+        "Followup": bot_followup,
+        "Tone": bot_tone,
+        "Format": bot_format,
+        "Language": bot_language
     };
 
     // Make API call
-    fetch(url, {
+    fetch(llm_summarise_api_url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -267,6 +310,9 @@ function postAPI(message, tone) {
             messageContent = messageContent.substring(0, splitIndex).trim(); // Keep only the main content
         }
 
+        // Apply bold formatting to text enclosed in "**"
+        messageContent = messageContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
         // Output results
         console.log("Cleaned Message Content:", messageContent);
         console.log("Follow-Up Questions:", followUpQuestions);
@@ -274,11 +320,8 @@ function postAPI(message, tone) {
         // Send the message
         botMessage(messageContent);
 
-        // Return the bots response
-        return {
-            bot_reply: messageContent,
-            followup: followUpQuestions
-        };
+        g_bot_response = messageContent;
+        g_follow_up_questions = followUpQuestions;
     })
     .catch(error => {
         console.error('Error:', error);

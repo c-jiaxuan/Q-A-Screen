@@ -1,20 +1,17 @@
 const wrapper = document.getElementById('AIPlayerWrapper');
 const authServer = 'https://account.aistudios.com';
 const AI_PLAYER = new AIPlayer(wrapper);
-//const appId = 'deepbrain.io';
-//const userKey = 'bb872cb0-c6da-4c32-b68d-15ff95679837';
-
-const appId = 'nba.web.demo';
-const userKey = '6d6dd666-b054-49e0-9342-e523e4dec1c6';
+const appId = 'demo-637l.onrender.com';
+const userKey = 'e7612a63-0da4-479b-8a7d-a7ab363c4d2a';
 
 AI_PLAYER.setConfig({
   authServer: authServer,
-  midServer: 'https://aimid.deepbrain.io',
+  midServer: 'https://aimid.deepbrain.io/',
   // resourceServer: 'https://resource.deepbrainai.io',
   // backendServer: 'https://backend.deepbrainai.io',
 });
 
-const DATA = { appId: '', clientToken: '', verifiedToken: '', tokenExpire: 0, maxTextLength: 70 };
+const DATA = {};
 
 initSample();
 
@@ -34,6 +31,7 @@ async function initSample() {
 }
 
 // =========================== AIPlayer Setup ================================ //
+
 async function generateClientToken() {
   const result = await makeRequest(
     'GET',
@@ -43,19 +41,20 @@ async function generateClientToken() {
   if (result?.succeed) {
     DATA.clientToken = result.token;
     DATA.appId = result.appId;
-  } else showPop('Error', result?.error);
+  } else {
+    console.log('generateClientToken Error:', result);
+  }
 }
 
 async function generateVerifiedToken() {
-  if (!DATA.appId || !DATA.clientToken) return;
-
   const result = await AI_PLAYER.generateToken({ appId: DATA.appId, token: DATA.clientToken });
+
   if (result?.succeed) {
     DATA.verifiedToken = result.token;
     DATA.tokenExpire = result.tokenExpire;
+    DATA.defaultAI = result.defaultAI;
   } else {
-    console.log('generateVerifiedToken Error:', result);
-    DATA.verifiedToken = '';
+    console.log('generateVerifiedToken Error: ' + result);
   }
 }
 

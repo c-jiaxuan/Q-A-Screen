@@ -9,7 +9,7 @@ body {
 
 body::before {
     content: "";
-    background: url('./Images/ACM_bg.png') no-repeat center center;
+    background: url('./Images/changi-chapel-courtyard.jpg') no-repeat center center;
     background-size: cover;
     position: absolute;
     top: 0;
@@ -41,7 +41,7 @@ body::before {
     max-width: 250px;
     background: #f1f1f1;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px #0000001a;
 }
 
 .input-area-container {
@@ -98,7 +98,7 @@ body::before {
     width: 40%;
     background: #f1f1f1;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px #0000001a;
     display: flex; 
     flex-direction: column; 
     justify-content: flex-end;
@@ -134,7 +134,7 @@ body::before {
     color: rgb(32, 32, 32);
 }
 .message.bot span {
-    background: #e92222;
+    background: #aa8200;
     color: rgb(255, 255, 255);
 }
 .message-time {
@@ -149,7 +149,7 @@ body::before {
     margin: 5px 0;
     height: auto;
     width: 100%;
-    background: #e92222;
+    background: #aa8200;
     color: white;
     border: none;
     border-radius: 5px;
@@ -176,7 +176,7 @@ body::before {
 }
 
 .button:hover {
-    background: #ab1a1a;
+    background: #806200;
 }
 
 .button1 {

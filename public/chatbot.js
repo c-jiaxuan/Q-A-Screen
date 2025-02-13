@@ -200,6 +200,56 @@ function botResponse(response) {
             speak(bot_reply.message, bot_reply.gesture);
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'message bot';
+            botMessageDiv.innerHTML = `<span>${bot_reply.message}</span><div class="message-time">${dateString} ${timeString}</div>`;
+            chatBody.appendChild(botMessageDiv);
+            const botSpan = botMessageDiv.querySelector('span');
+            // After typing finishes, swap to HTML with bold formatting
+            botSpan.innerHTML = setMessage.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+            if (prompt == true) {
+                var prompt_msg = getRandomElement(botMessages["prompt_msgs"])
+                botMessage(prompt_msg.message, prompt_msg.gesture);
+            }
+
+            // Scroll to the bottom
+            chatBody.scrollTop = chatBody.scrollHeight;
+        });
+    }
+
+    showRecordBtn(true);
+    showTalkBtn(false);
+    showProcessingBtn(false);
+}
+
+// Takes in response from user input and replies based on input
+// Takes in a bool 'prompt' for whether to prompt the user for more input
+function botResponse_Typing(response) {
+    var bot_reply = null;
+    var prompt = true;
+    var lowerCase_response = response.toLowerCase();
+    if (lowerCase_response.includes(substring_1)) {
+        bot_reply = botMessages["pow_response"];
+    }
+    else if (lowerCase_response.includes(substring_2)) {
+        bot_reply = botMessages["liberation_response"];
+    }
+    else {
+        // botMsg = getRandomElement(botMessages["default_msgs"]);
+        // bot_reply = botMsg.message;
+        // bot_gst = botMsg.gesture;
+        var bot_response = postAPI(response, bot_tone);
+        prompt = false;
+    }
+
+    showRecordBtn(false);
+    showTalkBtn(false);
+    showProcessingBtn(true);
+
+    if (bot_reply != null) {
+        setTimeout(() => {
+            speak(bot_reply.message, bot_reply.gesture);
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'message bot';
             botMessageDiv.innerHTML = `<span></span><div class="message-time">${dateString} ${timeString}</div>`;
             chatBody.appendChild(botMessageDiv);
             const botSpan = botMessageDiv.querySelector('span');
@@ -230,6 +280,47 @@ function botResponse(response) {
 
 // Takes in a message to be sent by the bot
 function botMessage(setMessage, gesture) {
+    setTimeout(() => {
+        speak(setMessage.toString(), gesture);
+        const botMessageElement = document.createElement('div');
+        botMessageElement.className = 'message bot';
+        botMessageElement.innerHTML = `<span>${setMessage}</span><div class="message-time">${dateString} ${timeString}</div>`;
+        chatBody.appendChild(botMessageElement);
+        const botSpan = botMessageDiv.querySelector('span');
+        // After typing finishes, swap to HTML with bold formatting
+        botSpan.innerHTML = setMessage.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+        if (g_follow_up_questions != null) {
+            const followupMessageElemenet = document.createElement('div');
+            followupMessageElemenet.className = 'message bot';
+            followupMessageElemenet.innerHTML = `<span></span><div class="message-time">${dateString} ${timeString}</div>`;
+            chatBody.appendChild(followupMessageElemenet);
+            const followupSpan = followupMessageElemenet.querySelector('span');
+
+            let header = document.createElement("p");
+            //**Add avatar talking**
+            header.textContent = "Some common follow-up questions:";
+            header.style.fontWeight = "bold"; // Make header bold
+            followupSpan.append(header);
+            
+            // Loop through follow-up questions and create bullet points
+            g_follow_up_questions.forEach(question => {
+                let li = document.createElement("li");
+                li.textContent = question;
+                followupSpan.appendChild(li);
+            });
+            console.log("Follow up questions found, sending follow up question...");
+            //botMessage(g_follow_up_questions[0]);
+            g_follow_up_questions = null;
+        }
+
+        // Scroll to the bottom
+        chatBody.scrollTop = chatBody.scrollHeight;
+    });
+}
+
+// Takes in a message to be sent by the bot
+function botMessage_Typing(setMessage, gesture) {
     setTimeout(() => {
         speak(setMessage.toString(), gesture);
         const botMessageElement = document.createElement('div');
@@ -282,8 +373,6 @@ function botMessage(setMessage, gesture) {
         chatBody.scrollTop = chatBody.scrollHeight;
     });
 }
-
-
 
 function postAPI(message, tone) {
     console.log("posting API...");

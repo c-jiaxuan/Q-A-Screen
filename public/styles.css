@@ -191,6 +191,8 @@ body::before {
     width: 1500px;
     bottom: -115%;
     left: -15%;
+    pointer-events: none; 
+    z-index: 2;
 }
 
 .AIControlContainer {
@@ -200,6 +202,8 @@ body::before {
 	position: fixed; 
 	top: 100px; 
 	right: 100px;
+    pointer-events: none; 
+    z-index: 2;
 }
 
 .AIControlContainer label {

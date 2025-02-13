@@ -342,6 +342,9 @@ function postAPI(message, tone) {
         console.log("Follow-Up Questions:", followUpQuestions);
 
         // Send the message
+        if (messageContent == "") {
+            messageContent = getRandomElement(botMessages['default_msgs']).message;
+        }
         botMessage(messageContent);
 
         g_bot_response = messageContent;

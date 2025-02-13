@@ -279,9 +279,10 @@ function botResponse_Typing(response) {
 // Takes in a message to be sent by the bot
 function botMessage(setMessage, gesture) {
     setTimeout(() => {
-        showRecordBtn(false);
+        showRecordBtn(true);
         showTalkBtn(false);
-        showProcessingBtn(true);
+        showProcessingBtn(false);
+
         speak(setMessage.toString(), gesture);
         const botMessageElement = document.createElement('div');
         botMessageElement.className = 'message bot';

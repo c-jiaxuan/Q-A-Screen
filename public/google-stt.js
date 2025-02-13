@@ -161,7 +161,7 @@ function stopRecording(hasUserInput) {
 
   //Send recognized text to chatbot
   if(userVoiceInput != "");
-    sendMessage(userVoiceInput);
+    sendMessageFromSpeech(userVoiceInput);
 
   //Set the recording to be done
   isFinal = true;

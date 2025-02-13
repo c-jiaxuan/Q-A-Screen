@@ -142,6 +142,7 @@ function beginChat() {
 
 function sendMessage() {
     console.log("Sending message to bot");
+    
     const message = userInput.value.trim();
     if (message === '') return;
 
@@ -156,7 +157,7 @@ function sendMessage() {
     botResponse(message);
 }
 
-function sendMessage(message){
+function sendMessageFromSpeech(message){
     console.log("Sending message to bot");
 
     // Add user message
@@ -259,6 +260,7 @@ function botMessage(setMessage, gesture) {
                     const followupSpan = followupMessageElemenet.querySelector('span');
 
                     let header = document.createElement("p");
+                    //**Add avatar talking**
                     header.textContent = "Some common follow-up questions:";
                     header.style.fontWeight = "bold"; // Make header bold
                     followupSpan.append(header);

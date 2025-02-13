@@ -54,6 +54,7 @@ function initSocketEvent() {
 function startRecognize() {
   showRecordBtn(false);
   showTalkBtn(true);
+  showProcessingBtn(false);
 
   startRecording();
 }
@@ -156,9 +157,10 @@ function stopRecording(hasUserInput) {
   console.log(userVoiceInput);
 
   //Update UI
-  //showRecordedText(true, userVoiceInput);
+  showRecordBtn(false);
   showTalkBtn(false);
-
+  showProcessingBtn(true);
+  
   //Send recognized text to chatbot
   if(userVoiceInput != "");
     sendMessageFromSpeech(userVoiceInput);
@@ -232,13 +234,4 @@ function showProcessingBtn(show){
     $("#processing-button-container").css("display", "block");
   else
     $("#processing-button-container").css("display", "none");
-}
-
-function showRecordedText(show, text){
-  if(show)
-    $("#recordedText").css("display", "block");
-  else
-    $("#recordedText").css("display", "none");
-
-  $("#recordedText").html(text);
 }

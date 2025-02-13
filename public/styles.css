@@ -92,7 +92,7 @@ body::before {
 .chat-container {
     position: relative;
     top: 2vh;
-    left:40%;
+    left: 45%;
     padding: 8px;
     height: 95%;
     width: 40%;
@@ -187,9 +187,9 @@ body::before {
 
 #AIPlayerWrapper {
     position: fixed;
-    height: 2200px;
-    width: 1500px;
-    bottom: -115%;
+    height: 1750px;
+    width: 1000px;
+    top: 15%;
     left: -15%;
     pointer-events: none; 
     z-index: 2;

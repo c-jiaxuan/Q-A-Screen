@@ -250,6 +250,7 @@ function botResponse_Typing(response) {
             botMessageDiv.innerHTML = `<span></span><div class="message-time">${dateString} ${timeString}</div>`;
             chatBody.appendChild(botMessageDiv);
             const botSpan = botMessageDiv.querySelector('span');
+            botSpan.innerHTML = setMessage.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 
             let i = 0;
             const interval = setInterval(() => {

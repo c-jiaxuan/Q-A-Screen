@@ -9,7 +9,7 @@ body {
 
 body::before {
     content: "";
-    background: url('./Images/changi-chapel-courtyard.jpg') no-repeat center center;
+    background: url('./img/changi-chapel-courtyard.jpg') no-repeat center center;
     background-size: cover;
     position: absolute;
     top: 0;
@@ -79,7 +79,7 @@ body::before {
 }
 
 .send-button:hover img {
-    content: url('./Images/Control_Signs/Send_Hover.png');
+    content: url('./img/Control_Signs/Send_Hover.png');
 }
 
 .speak-button-container {

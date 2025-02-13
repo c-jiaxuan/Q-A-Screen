@@ -19,6 +19,7 @@ botMessages["default_msgs"] = [new AI_Message("I am not sure what you have sent,
 botMessages["followup_prompt"] = new AI_Message("Here are some follow up questions you might be interested to ask!", "G02");
 botMessages["greeting_msg"] = new AI_Message("Hi! Let me know if you have any questions, you can input your questions into the input box, or using the \"Speak to AI\" button", "G02");
 botMessages["prompt_msgs"] = new AI_Message("Let me know if you require any further help!", "G04");
+botMessages["processing_msg"] = new AI_Message("Thank you! Please wait while I'm processing your question and I will reply to you shortly");
 
 // LLMs API Settings
 // Change these to change the LLMs response
@@ -43,6 +44,7 @@ var preloadCount = 0;
 var totalMessages = 0;
 
 let startedChat = false;
+let processingSpeak = false;
 
 const bot_typing_speed = 65;
 
@@ -184,7 +186,7 @@ function botResponse(response) {
         // botMsg = getRandomElement(botMessages["default_msgs"]);
         // bot_reply = botMsg.message;
         // bot_gst = botMsg.gesture;
-        var bot_response = postAPI(response, bot_tone);
+        var bot_response = postAPI(response);
         prompt = false;
     }
 
@@ -234,7 +236,7 @@ function botResponse_Typing(response) {
         // botMsg = getRandomElement(botMessages["default_msgs"]);
         // bot_reply = botMsg.message;
         // bot_gst = botMsg.gesture;
-        var bot_response = postAPI(response, bot_tone);
+        var bot_response = postAPI(response);
         prompt = false;
     }
 
@@ -288,7 +290,7 @@ function botMessage(setMessage, gesture) {
         botMessageElement.className = 'message bot';
         botMessageElement.innerHTML = `<span>${setMessage}</span><div class="message-time">${dateString} ${timeString}</div>`;
         chatBody.appendChild(botMessageElement);
-        const botSpan = botMessageDiv.querySelector('span');
+        const botSpan = botMessageElement.querySelector('span');
         // After typing finishes, swap to HTML with bold formatting
         botSpan.innerHTML = setMessage.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 
@@ -318,7 +320,7 @@ function botMessage(setMessage, gesture) {
 
         // Scroll to the bottom
         chatBody.scrollTop = chatBody.scrollHeight;
-    });
+    }, 100);
 }
 
 // Takes in a message to be sent by the bot
@@ -379,9 +381,10 @@ function botMessage_Typing(setMessage, gesture) {
     });
 }
 
-function postAPI(message, tone) {
+function postAPI(message) {
     console.log("posting API...");
 
+    //Setup request body
     const payload = {
         "app": bot_app,
         "q": message,
@@ -439,6 +442,11 @@ function postAPI(message, tone) {
         if (messageContent == "") {
             messageContent = getRandomElement(botMessages['default_msgs']).message;
         }
+        else{
+            speak(botMessages["processing_msg"].message, botMessages["processing_msg"].gesture);
+            processingSpeak=true;
+        }
+
         botMessage(messageContent);
 
         g_bot_response = messageContent;

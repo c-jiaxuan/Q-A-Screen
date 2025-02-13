@@ -278,6 +278,9 @@ function botResponse_Typing(response) {
 // Takes in a message to be sent by the bot
 function botMessage(setMessage, gesture) {
     setTimeout(() => {
+        showRecordBtn(false);
+        showTalkBtn(false);
+        showProcessingBtn(true);
         speak(setMessage.toString(), gesture);
         const botMessageElement = document.createElement('div');
         botMessageElement.className = 'message bot';
@@ -319,6 +322,9 @@ function botMessage(setMessage, gesture) {
 // Takes in a message to be sent by the bot
 function botMessage_Typing(setMessage, gesture) {
     setTimeout(() => {
+        showRecordBtn(false);
+        showTalkBtn(false);
+        showProcessingBtn(true);
         speak(setMessage.toString(), gesture);
         const botMessageElement = document.createElement('div');
         botMessageElement.className = 'message bot';

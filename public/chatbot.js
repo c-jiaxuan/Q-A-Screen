@@ -334,8 +334,8 @@ function postAPI(message, tone) {
             messageContent = messageContent.substring(0, splitIndex).trim(); // Keep only the main content
         }
 
-        // Apply bold formatting to text enclosed in "**"
-        messageContent = messageContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        // // Apply bold formatting to text enclosed in "**"
+        // messageContent = messageContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 
         // Output results
         console.log("Cleaned Message Content:", messageContent);

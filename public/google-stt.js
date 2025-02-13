@@ -21,9 +21,7 @@ const constraints = { audio: true, video: false };
 
 initSocketEvent();
 
-showRecordBtn(true);
-showTalkBtn(false);
-showProcessingBtn(false);
+showRecordBtn();
 
 // =========================== STT Callback ================================ //
 
@@ -52,9 +50,7 @@ function initSocketEvent() {
 
 // recording by using Google STT and Web API
 function startRecognize() {
-  showRecordBtn(false);
-  showTalkBtn(true);
-  showProcessingBtn(false);
+  showTalkBtn();
 
   startRecording();
 }
@@ -63,9 +59,7 @@ function endRecognize(hasUserInput) {
   stopRecording(hasUserInput);
 
   if(!hasUserInput){
-    showRecordBtn(false);
-    showTalkBtn(false);
-    showProcessingBtn(true);
+    showProcessingBtn();
   }
 }
 
@@ -156,10 +150,8 @@ function stopRecording(hasUserInput) {
   const userVoiceInput = googleSttText?.trim();
   console.log(userVoiceInput);
 
-  //Update UI
-  showRecordBtn(false);
-  showTalkBtn(false);
-  showProcessingBtn(true);
+  //Update UI to processing
+  showProcessingBtn();
   
   //Send recognized text to chatbot
   if(userVoiceInput != "");
@@ -215,23 +207,20 @@ function addTimeSettingsFinal(speechData) {
 }
 
 // =========================== UI ================================ //
-function showRecordBtn(show){
-  if(show) 
-    $("#speak-button-container").css("display", "block");
-  else
-    $("#speak-button-container").css("display", "none");
+function showRecordBtn(){
+  $("#speak-button-container").css("display", "block");
+  $("#listening-button-container").css("display", "none");
+  $("#processing-button-container").css("display", "none");
 }
 
-function showTalkBtn(show){
-  if(show) 
-    $("#listening-button-container").css("display", "block");
-  else
-    $("#listening-button-container").css("display", "none");
+function showTalkBtn(){
+  $("#listening-button-container").css("display", "block");
+  $("#speak-button-container").css("display", "none");  
+  $("#processing-button-container").css("display", "none");
 }
 
-function showProcessingBtn(show){
-  if(show) 
-    $("#processing-button-container").css("display", "block");
-  else
-    $("#processing-button-container").css("display", "none");
+function showProcessingBtn(){
+  $("#processing-button-container").css("display", "block");
+  $("#speak-button-container").css("display", "none");  
+  $("#listening-button-container").css("display", "none");
 }

@@ -124,8 +124,7 @@ function botMessage(setMessage, gesture, delay) {
         setTimeout(() => {
             // Event listener for early trigger
             function flagHandler() {
-                clearTimeout(timeout); // Cancel timeout
-                resolve("Flag triggered!");
+                flagTriggered = true;
                 document.removeEventListener("AICLIPSET_PLAY_STARTED", flagHandler); // Clean up
             }
         

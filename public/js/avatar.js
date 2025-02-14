@@ -175,22 +175,28 @@ function initAIPlayerEvent() {
             break;
         case AIEventType.AICLIPSET_PLAY_PREPARE_STARTED:
             typeName = 'AICLIPSET_PLAY_PREPARE_STARTED';
+            dispatchEvent(new Event('AICLIPSET_PLAY_PREPARE_STARTED'));
             break;
         case AIEventType.AICLIPSET_PLAY_PREPARE_COMPLETED:
             typeName = 'AICLIPSET_PLAY_PREPARE_COMPLETED';
+            dispatchEvent(new Event('AICLIPSET_PLAY_PREPARE_COMPLETED'));
             break;
         case AIEventType.AICLIPSET_PRELOAD_STARTED:
             typeName = 'AICLIPSET_PRELOAD_STARTED';
+            dispatchEvent(new Event('AICLIPSET_PRELOAD_STARTED'));
             break;
         case AIEventType.AICLIPSET_PRELOAD_COMPLETED:
             typeName = 'AICLIPSET_PRELOAD_COMPLETED';
+            dispatchEvent(new Event('AICLIPSET_PRELOAD_COMPLETED'));
+
             preloadCount++;
             if(isPreloadingFinished())
                 beginChat();
             break;
         case AIEventType.AICLIPSET_PLAY_STARTED:
             typeName = 'AICLIPSET_PLAY_STARTED';
-            
+            dispatchEvent(new Event('AICLIPSET_PLAY_STARTED'));
+
             if(isNextSpeakRegistered){
                 isNextSpeakRegistered = false;
                 speak(nextSpeak);
@@ -198,6 +204,8 @@ function initAIPlayerEvent() {
             break;
         case AIEventType.AICLIPSET_PLAY_COMPLETED:
             typeName = 'AICLIPSET_PLAY_COMPLETED';
+            dispatchEvent(new Event('AICLIPSET_PLAY_COMPLETED'));
+
             break;
         case AIEventType.AI_DISCONNECTED:
             typeName = 'AI_DISCONNECTED';

@@ -115,18 +115,84 @@ function botResponse(response) {
     showRecordBtn();
 }
 
+let flagTriggered = false;
 // Takes in a message to be sent by the bot
 function botMessage(setMessage, gesture, delay) {
     if(delay)
     {
         registerNextSpeak(setMessage.toString());
+        setTimeout(() => {
+            // Event listener for early trigger
+            function flagHandler() {
+                clearTimeout(timeout); // Cancel timeout
+                resolve("Flag triggered!");
+                document.removeEventListener("AICLIPSET_PLAY_STARTED", flagHandler); // Clean up
+            }
+        
+            document.addEventListener("AICLIPSET_PLAY_STARTED", flagHandler)
+    
+            new Promise((resolve) => {
+                // Check for 7 seconds timeout
+                const timeout = setTimeout(() => {
+                    document.removeEventListener("AICLIPSET_PLAY_STARTED", flagHandler);
+                    showBotMessage();
+                }, 7000);
+    
+                // Check every 300ms
+                const interval = setInterval(() => {
+                    if(flagTriggered){
+                        clearTimeout();
+                        clearInterval();
+                        showBotMessage();
+                    }
+                }, 300);
+            });
+    
+            function showBotMessage(){
+                showRecordBtn();
+                const botMessageElement = document.createElement('div');
+                botMessageElement.className = 'message bot';
+                botMessageElement.innerHTML = `<span>${setMessage}</span><div class="message-time">${dateString} ${timeString}</div>`;
+                chatBody.appendChild(botMessageElement);
+                const botSpan = botMessageElement.querySelector('span');
+                // After typing finishes, swap to HTML with bold formatting
+                botSpan.innerHTML = setMessage.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    
+                processing_status?.remove();
+                processing_status = null;
+    
+                if (g_follow_up_questions != null) {
+                    const followupMessageElemenet = document.createElement('div');
+                    followupMessageElemenet.className = 'message bot';
+                    followupMessageElemenet.innerHTML = `<span></span><div class="message-time">${dateString} ${timeString}</div>`;
+                    chatBody.appendChild(followupMessageElemenet);
+                    const followupSpan = followupMessageElemenet.querySelector('span');
+    
+                    let header = document.createElement("p");
+                    //**Add avatar talking**
+                    header.textContent = "Some common follow-up questions:";
+                    header.style.fontWeight = "bold"; // Make header bold
+                    followupSpan.append(header);
+                    
+                    // Loop through follow-up questions and create bullet points
+                    g_follow_up_questions.forEach(question => {
+                        let li = document.createElement("li");
+                        li.textContent = question;
+                        followupSpan.appendChild(li);
+                    });
+                    console.log("Follow up questions found, sending follow up question...");
+                    //botMessage(g_follow_up_questions[0]);
+                    g_follow_up_questions = null;
+                }
+    
+                // Scroll to the bottom
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        }, 5500);
     }
     else
     {
         speak(setMessage.toString(), gesture);
-    }
-
-    setTimeout(() => {
         showRecordBtn();
         const botMessageElement = document.createElement('div');
         botMessageElement.className = 'message bot';
@@ -165,7 +231,7 @@ function botMessage(setMessage, gesture, delay) {
 
         // Scroll to the bottom
         chatBody.scrollTop = chatBody.scrollHeight;
-    }, delay?5500:0);
+    }
 }
 
 function postAPI(message) {

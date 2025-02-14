@@ -29,6 +29,10 @@ const DATA = {
 var preloadCount = 0;
 var totalMessages = 0;
 
+// To store next speak in case of multiple speak
+var isNextSpeakRegistered = false;
+var nextSpeak = "";
+
 class AI_Message {
     // Constructor method for initializing properties
     constructor(message, gesture) {
@@ -186,12 +190,18 @@ function initAIPlayerEvent() {
             break;
         case AIEventType.AICLIPSET_PLAY_STARTED:
             typeName = 'AICLIPSET_PLAY_STARTED';
+            
+            if(isNextSpeakRegistered){
+                isNextSpeakRegistered = false;
+                speak(nextSpeak);
+            }
             break;
         case AIEventType.AICLIPSET_PLAY_COMPLETED:
             typeName = 'AICLIPSET_PLAY_COMPLETED';
             break;
         case AIEventType.AI_DISCONNECTED:
             typeName = 'AI_DISCONNECTED';
+            AI_PLAYER.reconnect();
             break;
         case AIEventType.AICLIPSET_PRELOAD_FAILED:
             typeName = 'AICLIPSET_PRELOAD_FAILED';
@@ -353,4 +363,9 @@ function countPreloadMessages(){
 function isPreloadingFinished() {
     console.log("Checking if preloaded finish against " + totalMessages + " items ...");
     return preloadCount >= totalMessages;
+}
+
+function registerNextSpeak(speak){
+    isNextSpeakRegistered = true;
+    nextSpeak = speak;
 }

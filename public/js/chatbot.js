@@ -117,9 +117,14 @@ function botResponse(response) {
 
 // Takes in a message to be sent by the bot
 function botMessage(setMessage, gesture, delay) {
-    setTimeout(() => {
+    if(delay)
+    {
+        registerNextSpeak(setMessage.toString());
+    }
+    else
+    {
         speak(setMessage.toString(), gesture);
-    }, delay?1000:0);
+    }
 
     setTimeout(() => {
         showRecordBtn();
@@ -169,7 +174,7 @@ function postAPI(message) {
     //Setup request body
     const payload = {
         "app": bot_app,
-        "q": message,
+        "q": message + ". Summarise in 2 short sentences",
         "context": "Add context from matches. Use the format:\n\nDOC_ID: 1\nTITLE: (title)\n(page_content)\n\nDOC_ID: 2\nTITLE: ...\n...",
         "Followup": bot_followup,
         "Tone": bot_tone,

@@ -29,7 +29,7 @@ const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
 function beginChat() {
     console.log("Beginning chat");
 
-    botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture);
+    botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture, false);
 }
 
 function sendMessage() {
@@ -98,7 +98,7 @@ function botResponse(response) {
 
             if (prompt == true) {
                 var prompt_msg = botMessages["prompt_msgs"];
-                botMessage(prompt_msg.message, prompt_msg.gesture);
+                botMessage(prompt_msg.message, prompt_msg.gesture, true);
             }
 
             processing_status?.remove();
@@ -113,10 +113,10 @@ function botResponse(response) {
 }
 
 // Takes in a message to be sent by the bot
-function botMessage(setMessage, gesture) {
+function botMessage(setMessage, gesture, delay) {
     setTimeout(() => {
         speak(setMessage.toString(), gesture);
-    },1000);
+    }, delay?1000:0);
 
     setTimeout(() => {
         showRecordBtn();
@@ -157,7 +157,7 @@ function botMessage(setMessage, gesture) {
 
         // Scroll to the bottom
         chatBody.scrollTop = chatBody.scrollHeight;
-    }, 5500);
+    }, delay?5500:0);
 }
 
 function postAPI(message) {
@@ -228,7 +228,7 @@ function postAPI(message) {
 
         processing_status.innerHTML = `<span>Processing the answer...</span><div class="message-time">${dateString} ${timeString}</div>`;
 
-        botMessage(messageContent);
+        botMessage(messageContent, "", true);
 
         g_bot_response = messageContent;
         g_follow_up_questions = followUpQuestions;

@@ -41,9 +41,9 @@ let botMessages = {};   // Dictionary to store all preset bot messages
 botMessages["start_msg"] = new AI_Message("Hello! How can I help you for this tour today?", "G05");
 botMessages["default_msgs"] = [new AI_Message("I am not sure what you have sent, please try again."),
                                 new AI_Message("I don't quite understand what you are saying, please try again."),];
-botMessages["followup_prompt"] = new AI_Message("Here are some follow up questions you might be interested to ask!", "G02");
-botMessages["greeting_msg"] = new AI_Message("Hi! Let me know if you have any questions, you can input your questions into the input box, or using the \"Speak to AI\" button", "G02");
-botMessages["prompt_msgs"] = new AI_Message("Let me know if you require any further help!", "G04");
+//botMessages["followup_prompt"] = new AI_Message("Here are some follow up questions you might be interested to ask!", "G02");
+//botMessages["greeting_msg"] = new AI_Message("Hi! Let me know if you have any questions, you can input your questions into the input box, or using the \"Speak to AI\" button", "G02");
+//botMessages["prompt_msgs"] = new AI_Message("Let me know if you require any further help!", "G04");
 botMessages["processing_msg"] = new AI_Message("Thank you! Please wait while I'm processing your question and I will reply to you shortly");
 
 initSample();

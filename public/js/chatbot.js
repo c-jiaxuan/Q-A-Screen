@@ -125,6 +125,7 @@ function botMessage(setMessage, gesture, delay) {
             // Event listener for early trigger
             function flagHandler() {
                 flagTriggered = true;
+                console.log(Error, "Flag triggered");
                 document.removeEventListener("AICLIPSET_PLAY_STARTED", flagHandler); // Clean up
             }
         
@@ -133,16 +134,22 @@ function botMessage(setMessage, gesture, delay) {
             new Promise((resolve) => {
                 // Check for 7 seconds timeout
                 const timeout = setTimeout(() => {
+                    console.log(Error, "Timeout return");
                     document.removeEventListener("AICLIPSET_PLAY_STARTED", flagHandler);
                     showBotMessage();
+                    resolve();
                 }, 7000);
     
                 // Check every 300ms
                 const interval = setInterval(() => {
                     if(flagTriggered){
-                        clearTimeout();
-                        clearInterval();
+                        console.log(Error, "flag return");
+                        flagTriggered = false;
+                        clearTimeout(timeout);
+                        clearInterval(interval);
                         showBotMessage();
+                        document.removeEventListener("AICLIPSET_PLAY_STARTED", flagHandler); // Clean up
+                        resolve();
                     }
                 }, 300);
             });

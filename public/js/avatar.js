@@ -187,7 +187,7 @@ function initAIPlayerEvent() {
             break;
         case AIEventType.AICLIPSET_PRELOAD_COMPLETED:
             typeName = 'AICLIPSET_PRELOAD_COMPLETED';
-            dispatchEvent(new Event('AICLIPSET_PRELOAD_COMPLETED'));
+            document.dispatchEvent(new Event('AICLIPSET_PRELOAD_COMPLETED'));
 
             preloadCount++;
             if(isPreloadingFinished())
@@ -195,12 +195,13 @@ function initAIPlayerEvent() {
             break;
         case AIEventType.AICLIPSET_PLAY_STARTED:
             typeName = 'AICLIPSET_PLAY_STARTED';
-            dispatchEvent(new Event('AICLIPSET_PLAY_STARTED'));
 
             if(isNextSpeakRegistered){
                 isNextSpeakRegistered = false;
                 speak(nextSpeak);
             }
+
+            document.dispatchEvent(new Event('AICLIPSET_PLAY_STARTED'));
             break;
         case AIEventType.AICLIPSET_PLAY_COMPLETED:
             typeName = 'AICLIPSET_PLAY_COMPLETED';

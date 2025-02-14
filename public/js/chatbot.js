@@ -71,6 +71,9 @@ function sendMessageFromSpeech(message){
 
     userInput.value = '';
 
+    // Scroll to the bottom
+    chatBody.scrollTop = chatBody.scrollHeight;
+
     botResponse(message);
 }
 

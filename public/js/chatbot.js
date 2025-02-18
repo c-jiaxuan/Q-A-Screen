@@ -9,17 +9,18 @@ var bot_followup = true;
 var llm_summarise_api_url = 'https://gramener.com/docsearch/summarize';
 
 // Used to store followup questions
-var g_bot_response = null;
 var g_follow_up_questions = null;
 
 var processing_status = null;
 var oneTime_txt_bubble = null;
 
-let startedChat = false;
 let processingSpeak = false;
 
 const chatBody = document.getElementById('chat-history-container');
 const userInput = document.getElementById('input');
+
+const USER_BUBBLE = 'message user';
+const BOT_BUBBLE = 'message bot'
 
 const now = new Date();
 const dateString = now.toLocaleDateString();
@@ -46,14 +47,10 @@ function sendMessageFromChatbox() {
     else processUserMessage(message);
 
     // Add user message
-    const userMessage = document.createElement('div');
-    userMessage.className = 'message user';
-    userMessage.innerHTML = `<span>${message}</span><div class="message-time">${dateString} ${timeString}</div>`;
-    chatBody.appendChild(userMessage);
+    createMsgBubble(USER_BUBBLE, message);
 
-    createProcessingStatusText();
-    processing_status.innerHTML = `<span>Retrieving Answer...</span><div class="message-time">${dateString} ${timeString}</div>`;
-    chatBody.appendChild(processing_status);
+    // Create temp bubble to show status message
+    createTempBubble(USER_BUBBLE, "Retrieving Answer...", 0);
 
     userInput.value = '';
 
@@ -70,14 +67,10 @@ function sendMessageFromSpeech(message){
     else processUserMessage(message);
 
     // Add user message
-    const userMessage = document.createElement('div');
-    userMessage.className = 'message user';
-    userMessage.innerHTML = `<span>${message}</span><div class="message-time">${dateString} ${timeString}</div>`;
-    chatBody.appendChild(userMessage);
+    createMsgBubble(USER_BUBBLE, message);
 
-    createProcessingStatusText();
-    processing_status.innerHTML = `<span>Retrieving Answer...</span><div class="message-time">${dateString} ${timeString}</div>`;
-    chatBody.appendChild(processing_status);
+    // Create temp bubble to show status message
+    createTempBubble(USER_BUBBLE, "Retrieving Answer...", 0);
 
     userInput.value = '';
 
@@ -101,21 +94,14 @@ function botResponse(response) {
     if (bot_reply != null) {
         setTimeout(() => {
             speak(bot_reply.message, bot_reply.gesture);
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'message bot';
-            botMessageDiv.innerHTML = `<span>${bot_reply.message}</span><div class="message-time">${dateString} ${timeString}</div>`;
-            chatBody.appendChild(botMessageDiv);
-            const botSpan = botMessageDiv.querySelector('span');
-            // After typing finishes, swap to HTML with bold formatting
-            botSpan.innerHTML = setMessage.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            createMsgBubble(BOT_BUBBLE, bot_reply.message);
 
             if (prompt == true) {
                 var prompt_msg = botMessages["prompt_msgs"];
                 botMessage(prompt_msg.message, prompt_msg.gesture, true);
             }
 
-            processing_status?.remove();
-            processing_status = null;
+            deleteTempBubble()
 
             // Scroll to the bottom
             chatBody.scrollTop = chatBody.scrollHeight;
@@ -166,23 +152,13 @@ function botMessage(setMessage, gesture, delay) {
     
             function showBotMessage(){
                 showRecordBtn();
-                const botMessageElement = document.createElement('div');
-                botMessageElement.className = 'message bot';
-                botMessageElement.innerHTML = `<span>${setMessage}</span><div class="message-time">${dateString} ${timeString}</div>`;
-                chatBody.appendChild(botMessageElement);
-                const botSpan = botMessageElement.querySelector('span');
-                // After typing finishes, swap to HTML with bold formatting
-                botSpan.innerHTML = setMessage.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                createMsgBubble(BOT_BUBBLE, setMessage);
     
-                processing_status?.remove();
-                processing_status = null;
+                deleteTempBubble();
     
                 if (g_follow_up_questions != null) {
-                    const followupMessageElemenet = document.createElement('div');
-                    followupMessageElemenet.className = 'message bot';
-                    followupMessageElemenet.innerHTML = `<span></span><div class="message-time">${dateString} ${timeString}</div>`;
-                    chatBody.appendChild(followupMessageElemenet);
-                    const followupSpan = followupMessageElemenet.querySelector('span');
+                    const followupMessageElement = createMsgBubble(BOT_BUBBLE, "");
+                    const followupSpan = followupMessageElement.querySelector('span');
     
                     let header = document.createElement("p");
                     //**Add avatar talking**
@@ -210,23 +186,13 @@ function botMessage(setMessage, gesture, delay) {
     {
         speak(setMessage.toString(), gesture);
         showRecordBtn();
-        const botMessageElement = document.createElement('div');
-        botMessageElement.className = 'message bot';
-        botMessageElement.innerHTML = `<span>${setMessage}</span><div class="message-time">${dateString} ${timeString}</div>`;
-        chatBody.appendChild(botMessageElement);
-        const botSpan = botMessageElement.querySelector('span');
-        // After typing finishes, swap to HTML with bold formatting
-        botSpan.innerHTML = setMessage.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        createMsgBubble(BOT_BUBBLE, setMessage);
 
-        processing_status?.remove();
-        processing_status = null;
+        deleteTempBubble();
 
         if (g_follow_up_questions != null) {
-            const followupMessageElemenet = document.createElement('div');
-            followupMessageElemenet.className = 'message bot';
-            followupMessageElemenet.innerHTML = `<span></span><div class="message-time">${dateString} ${timeString}</div>`;
-            chatBody.appendChild(followupMessageElemenet);
-            const followupSpan = followupMessageElemenet.querySelector('span');
+            const followupMessageElement = createMsgBubble(USER_BUBBLE, "");
+            const followupSpan = followupMessageElement.querySelector('span');
 
             let header = document.createElement("p");
             //**Add avatar talking**
@@ -300,9 +266,6 @@ function postAPI(message) {
             messageContent = messageContent.substring(0, splitIndex).trim(); // Keep only the main content
         }
 
-        // // Apply bold formatting to text enclosed in "**"
-        // messageContent = messageContent.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-
         // Output results
         console.log("Cleaned Message Content:", messageContent);
         console.log("Follow-Up Questions:", followUpQuestions);
@@ -316,16 +279,56 @@ function postAPI(message) {
             processingSpeak=true;
         }
 
-        processing_status.innerHTML = `<span>Processing the answer...</span><div class="message-time">${dateString} ${timeString}</div>`;
+        createTempBubble(USER_BUBBLE, "Processing the answer...", 0);
 
         botMessage(messageContent, "", false);
 
-        g_bot_response = messageContent;
         g_follow_up_questions = followUpQuestions;
     })
     .catch(error => {
         console.error('Error:', error);
     });
+}
+
+function createMsgBubble(userID, message) {
+    const botMessageDiv = document.createElement('div');
+    botMessageDiv.className = userID;
+    botMessageDiv.innerHTML = `<span>${message}</span><div class="message-time">${dateString} ${timeString}</div>`;
+    chatBody.appendChild(botMessageDiv);
+
+    const botSpan = botMessageDiv.querySelector('span');
+    // After typing finishes, swap to HTML with bold formatting
+    botSpan.innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+    return botMessageDiv;
+}
+
+function createTempBubble(userID, message, timing) {
+    // If there is a temp bubble around, update it else create one
+    if (oneTime_txt_bubble != null) {
+        oneTime_txt_bubble.innerHTML = `<span>${message}</span><div class="message-time">${dateString} ${timeString}</div>`;
+        const botSpan = oneTime_txt_bubble.querySelector('span');
+        // After typing finishes, swap to HTML with bold formatting
+        botSpan.innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    } else {
+        oneTime_txt_bubble = createMsgBubble(userID, message);
+    }
+    // If timing is given, delete the bubble after some time
+    if (timing != 0) {
+        // Delete bubble after 'timing' seconds
+        setTimeout(function () { deleteBubble(oneTime_txt_bubble); }, timing);
+    }
+    return oneTime_txt_bubble;
+}
+
+function deleteTempBubble() {
+    console.log("Deleting one time text bubble...");
+    oneTime_txt_bubble?.remove();
+    oneTime_txt_bubble = null;
+}
+
+function deleteBubble(messageDiv) {
+    messageDiv.remove();
 }
 
 function getRandomElement(arr) {
@@ -338,8 +341,4 @@ function createProcessingStatusText(){
     processing_status.className = 'message user';
     processing_status.id = 'processing_status';
     return processing_status;
-}
-
-function createMessageBubble(){
-
 }

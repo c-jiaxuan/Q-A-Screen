@@ -31,11 +31,19 @@ function beginChat() {
     botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture, false);
 }
 
-function sendMessage() {
-    console.log("Sending message to bot");
+function processUserMessage(msg){
+    // Display user input
+    var userBubble = createMessageBubble();
+    // Display processing status
+
+}
+
+function sendMessageFromChatbox() {
+    console.log("Triggered input from chatbox");
     
     const message = userInput.value.trim();
-    if (message === '') return;
+    if (message == '') return;
+    else processUserMessage(message);
 
     // Add user message
     const userMessage = document.createElement('div');
@@ -56,7 +64,10 @@ function sendMessage() {
 }
 
 function sendMessageFromSpeech(message){
-    console.log("Sending message to bot");
+    console.log("Received message from stt");
+
+    if(message == '') return;
+    else processUserMessage(message);
 
     // Add user message
     const userMessage = document.createElement('div');
@@ -193,7 +204,7 @@ function botMessage(setMessage, gesture, delay) {
                 // Scroll to the bottom
                 chatBody.scrollTop = chatBody.scrollHeight;
             }
-        }, 5500);
+        }, 0);
     }
     else
     {
@@ -307,7 +318,7 @@ function postAPI(message) {
 
         processing_status.innerHTML = `<span>Processing the answer...</span><div class="message-time">${dateString} ${timeString}</div>`;
 
-        botMessage(messageContent, "", true);
+        botMessage(messageContent, "", false);
 
         g_bot_response = messageContent;
         g_follow_up_questions = followUpQuestions;
@@ -327,4 +338,8 @@ function createProcessingStatusText(){
     processing_status.className = 'message user';
     processing_status.id = 'processing_status';
     return processing_status;
+}
+
+function createMessageBubble(){
+
 }

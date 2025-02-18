@@ -295,7 +295,17 @@ async function speak(text, gst) {
     await refreshTokenIFExpired();
 
     console.log("Gesture: " + gst + " Speaking: ", text);
-    AI_PLAYER.send({ text: text, gst: gst });
+    
+    if(isPreloadMessage(text))
+    {
+        AI_PLAYER.send({ text: text, gst: gst });
+    }
+    else
+    {
+        var msgToSpeak = breakdownSpeak(text);
+        AI_PLAYER.send(msgToSpeak);
+    }
+
 }
   
 async function preload(clipSet) {
@@ -390,4 +400,25 @@ function isPreloadingFinished() {
 function registerNextSpeak(speak){
     isNextSpeakRegistered = true;
     nextSpeak = speak;
+}
+
+function breakdownSpeak(msg){
+    // Split by '.', '!', '?' followed by a space or end of string
+    return msg.match(/[^.!?]+[.!?]+/g) || [msg];
+}
+
+function isPreloadMessage(msg){
+    for (const key in botMessages) {
+        const botMessage = botMessages[key];
+
+        if (Array.isArray(botMessage)) {
+            // If it's an array, check each message inside
+            if (botMessage.some(m => m.message === msg)) {
+                return true;
+            }
+        } else if (botMessage.message === msg) {
+            return true;
+        }
+    }
+    return false;
 }

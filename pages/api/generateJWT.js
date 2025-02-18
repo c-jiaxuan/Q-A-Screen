@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
-//const userKey = "a952f746-20c7-4d82-9eea-0896af4d27e5"; //input userkey
-const userKey = "bb872cb0-c6da-4c32-b68d-15ff95679837"; //input userkey
+const userKey = "e7612a63-0da4-479b-8a7d-a7ab363c4d2a"; //input userkey
+//const userKey = "bb872cb0-c6da-4c32-b68d-15ff95679837"; //input userkey
 const payload = {
-  appId: "deepbrain.io", //input appId
-  //appId: "apr-2024-test", //input appId
+  //appId: "deepbrain.io", //input appId
+  appId: "demo-637l.onrender.com", //input appId
   platform: "web",
 };
 

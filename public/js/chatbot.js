@@ -13,11 +13,10 @@ var g_bot_response = null;
 var g_follow_up_questions = null;
 
 var processing_status = null;
+var oneTime_txt_bubble = null;
 
 let startedChat = false;
 let processingSpeak = false;
-
-const bot_typing_speed = 65;
 
 const chatBody = document.getElementById('chat-history-container');
 const userInput = document.getElementById('input');

@@ -30,14 +30,20 @@ const dateString = now.toLocaleDateString();
 const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 // Showing loading chat bubble before beginChat
-function loadingChat() {
-    createTempBubble(BOT_BUBBLE, "Loading AI, please wait", 0);
+function loadChat() {
+    if (!isPreloadingFinished()) {
+        createTempBubble(BOT_BUBBLE, "Loading AI, please wait", 0);
+    } else if (!startChat) {
+        beginChat();
+    }
 }
 
 function beginChat() {
-    console.log("Beginning chat");
-    deleteTempBubble();
-    botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture, false);
+    if (isPreloadingFinished()) {
+        startChat = true;
+        deleteTempBubble();
+        botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture, false);
+    }
 }
 
 function processUserMessage(msg){

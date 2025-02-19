@@ -20,15 +20,23 @@ const chatBody = document.getElementById('chat-history-container');
 const userInput = document.getElementById('input');
 
 const USER_BUBBLE = 'message user';
-const BOT_BUBBLE = 'message bot'
+const BOT_BUBBLE = 'message bot';
+
+// Store interval reference
+let animationInterval;
 
 const now = new Date();
 const dateString = now.toLocaleDateString();
 const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+// Showing loading chat bubble before beginChat
+function loadingChat() {
+    createTempBubble(BOT_BUBBLE, "Loading AI, please wait", 0);
+}
+
 function beginChat() {
     console.log("Beginning chat");
-
+    deleteTempBubble();
     botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture, false);
 }
 
@@ -36,8 +44,74 @@ function processUserMessage(msg){
     if (msg == '') 
     {
         // Reset all parameters
-        
         return;
+    }
+    // Display user input
+    var userBubble = createMsgBubble(USER_BUBBLE, msg);
+    // Display processing status
+}
+
+function sendMessageFromChatbox() {
+    console.log("Triggered input from chatbox");
+    
+    const message = userInput.value.trim();
+    if (message == '') return;
+    else processUserMessage(message);
+
+    // Create temp bubble to show status message
+    createTempBubble(USER_BUBBLE, "Retrieving Answer", 0);
+
+    userInput.value = '';
+
+    // Scroll to the bottom
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    botResponse(message);
+}
+
+function sendMessageFromSpeech(message){
+    console.log("Received message from stt");
+
+    if(message == '') return;
+    else processUserMessage(message);
+
+    // Create temp bubble to show status message
+    createTempBubble(USER_BUBBLE, "Retrieving Answer", 0);
+
+    userInput.value = '';
+
+    // Scroll to the bottom
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    botResponse(message);
+}
+
+// Takes in response from user input and replies based on input
+// Takes in a bool 'prompt' for whether to prompt the user for more input
+function botResponse(response) {
+    var bot_reply = null;
+    var prompt = true;
+
+    postAPI(response);
+    prompt = false;
+
+    showProcessingBtn();
+
+    if (bot_reply != null) {
+        setTimeout(() => {
+            speak(bot_reply.message, bot_reply.gesture);
+            createMsgBubble(BOT_BUBBLE, bot_reply.message);
+
+            if (prompt == true) {
+                var prompt_msg = botMessages["prompt_msgs"];
+                botMessage(prompt_msg.message, prompt_msg.gesture, true);
+            }
+
+            deleteTempBubble()
+
+            // Scroll to the bottom
+            chatBody.scrollTop = chatBody.scrollHeight;
+        });
     }
 
     // Display user input
@@ -311,10 +385,34 @@ function createTempBubble(userID, message, timing) {
         // Delete bubble after 'timing' seconds
         setTimeout(function () { deleteTempBubble(); }, timing);
     }
+    animateMsgBubble();
+    return oneTime_txt_bubble;
+}
+
+function animateMsgBubble() {
+    if (!oneTime_txt_bubble) return; // Ensure the bubble exists
+
+    let dots = 0;
+    const botSpan = oneTime_txt_bubble.querySelector('span');
+    const baseMessage = botSpan.innerText; // Store the original message
+
+    animationInterval = setInterval(() => {
+        dots = (dots % 3) + 1; // Cycle between 1 to 3 dots
+        botSpan.innerText = baseMessage + ".".repeat(dots); // Append dots
+    }, 500); // Adjust speed as needed
+}
+
+function stopAnimateMsgBubble() {
+    clearInterval(animationInterval); // Stop the animation
+    if (oneTime_txt_bubble) {
+        const botSpan = oneTime_txt_bubble.querySelector('span');
+        botSpan.innerText = botSpan.innerText.replace(/\.+$/, ""); // Remove trailing dots
+    }
 }
 
 function deleteTempBubble() {
     console.log("Deleting one time text bubble...");
+    stopAnimateMsgBubble();
     oneTime_txt_bubble?.remove();
     oneTime_txt_bubble = null;
 }

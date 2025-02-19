@@ -146,6 +146,7 @@ function initAIPlayerEvent() {
   
         countPreloadMessages();
         preloadMessages();
+        loadChat();
       }
     };
 

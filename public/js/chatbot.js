@@ -26,9 +26,13 @@ const now = new Date();
 const dateString = now.toLocaleDateString();
 const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-function beginChat() {
-    console.log("Beginning chat");
+// Showing loading chat bubble before beginChat
+function loadChat() {
+    createTempBubble(BOT_BUBBLE, "Loading AI, please wait", 0);
+}
 
+function beginChat() {
+    deleteTempBubble();
     botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture, false);
 }
 
@@ -43,7 +47,7 @@ function processUserMessage(msg){
     // Display user input
     createMsgBubble(USER_BUBBLE, msg);
     // Display processing status
-    createTempBubble(BOT_BUBBLE, "Retrieving Answer...", 0);
+    createTempBubble(BOT_BUBBLE, "Retrieving Answer", 0);
     //Clear user input box
     userInput.value = '';
     // Scroll to the bottom
@@ -139,7 +143,7 @@ function processBotMessage(answer, followUpQns){
         speak(botMessages["processing_msg"].message);
 
         // Show processing status
-        createTempBubble(BOT_BUBBLE, "Processing the answer...", 0);
+        createTempBubble(BOT_BUBBLE, "Processing the answer", 0);
 
         setTimeout(() => { 
             // Delete processing status after 2 seconds
@@ -311,10 +315,33 @@ function createTempBubble(userID, message, timing) {
         // Delete bubble after 'timing' seconds
         setTimeout(function () { deleteTempBubble(); }, timing);
     }
+    animateMsgBubble();
+}
+
+function animateMsgBubble() {
+    if (!oneTime_txt_bubble) return; // Ensure the bubble exists
+
+    let dots = 0;
+    const botSpan = oneTime_txt_bubble.querySelector('span');
+    const baseMessage = botSpan.innerText; // Store the original message
+
+    animationInterval = setInterval(() => {
+        dots = (dots % 3) + 1; // Cycle between 1 to 3 dots
+        botSpan.innerText = baseMessage + ".".repeat(dots); // Append dots
+    }, 500); // Adjust speed as needed
+}
+
+function stopAnimateMsgBubble() {
+    clearInterval(animationInterval); // Stop the animation
+    if (oneTime_txt_bubble) {
+        const botSpan = oneTime_txt_bubble.querySelector('span');
+        botSpan.innerText = botSpan.innerText.replace(/\.+$/, ""); // Remove trailing dots
+    }
 }
 
 function deleteTempBubble() {
     console.log("Deleting one time text bubble...");
+    stopAnimateMsgBubble();
     oneTime_txt_bubble?.remove();
     oneTime_txt_bubble = null;
 }

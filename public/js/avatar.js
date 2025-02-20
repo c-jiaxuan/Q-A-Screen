@@ -49,6 +49,9 @@ var nextSpeak = "";
 let isAIInit = false
 let isAudioPreviewInit = false
 
+const customVoicePackFemale = "google/en-US/FEMALE_en-US-Standard-F";
+const customVoicePackMale = "google/en-US/MALE_en-US-Standard-D";
+
 class AI_Message {
     // Constructor method for initializing properties
     constructor(message, gesture) {
@@ -72,6 +75,7 @@ async function initSample() {
     
     await AI_PLAYER.init({
         aiName: "M000320746_BG00007441H_light",
+        //aiName: "M000363906_BG00001502H", //Max
         size: 1.0,
         left: 0,
         top: 0,
@@ -153,6 +157,7 @@ function initAIPlayerEvent() {
         // To set custom voice
         //const customVoice = AI_PLAYER.findCustomVoice("google/en-US/FEMALE_en-US-Neural2-C");
         const customVoice = AI_PLAYER.findCustomVoice("amazon/en-US/Female_Danielle");
+        //const customVoice = AI_PLAYER.findCustomVoice(customVoicePackMale);
   
         // Set custom voice will cause issues with the AI speaking
         const isSuccess = AI_PLAYER.setCustomVoice(customVoice); 

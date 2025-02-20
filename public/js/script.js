@@ -16,7 +16,11 @@ function onTranscribeBtnClick(){
     speakBtnText.innerHTML = isTranscribe ? "Send" : "Speak to AI";
     $("#reset-button").css("display", isTranscribe ? "block" : "none");
 
-    chatBody1.scrollTop = chatBody1.scrollHeight;
+    const currentMessage = chatBody1.lastElementChild;
+    if (currentMessage) {
+        // Set scrollTop to the current message's offset from the top of chatBody1
+        chatBody1.scrollTop = currentMessage.offsetTop;
+    }
 
     document.dispatchEvent(new Event("READY_TO_TRANSCRIBE"));
 }

@@ -165,6 +165,7 @@ document.addEventListener("READY_TO_TRANSCRIBE", async () => {
   console.log(state);
 
   if(transcribedText == null) transcribedText = document.getElementById("AILiveInputTextVoice");
+  
   if (state == APP_STATE.IDLE) {
     const isStarted = await appCtlr.startTranscribe()
     if (isStarted) {
@@ -174,6 +175,8 @@ document.addEventListener("READY_TO_TRANSCRIBE", async () => {
     if (state == APP_STATE.TRANSCRIBING) {
       //transcribedText.innerHTML = ''
       appCtlr.onTranscribeComplete()
+      transcribedText.removeAttribute("id");
+      transcribedText = null;
     } else {
       //ignore.. LLM, SPEAK case
     }

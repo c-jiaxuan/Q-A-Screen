@@ -173,6 +173,8 @@ function processBotMessage(answer, followUpQns){
                 console.log("Follow up questions found, sending follow up question...");
                 follow_up_questions = null;
             }
+
+            chatBody.scrollTop = chatBody.scrollHeight;
         }, 2000);
     }
 

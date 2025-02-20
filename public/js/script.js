@@ -16,6 +16,8 @@ function onTranscribeBtnClick(){
     speakBtnText.innerHTML = isTranscribe ? "Send" : "Speak to AI";
     $("#reset-button").css("display", isTranscribe ? "block" : "none");
 
+    chatBody1.scrollTop = chatBody1.scrollHeight;
+
     document.dispatchEvent(new Event("READY_TO_TRANSCRIBE"));
 }
 

@@ -31,19 +31,12 @@ const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digi
 
 // Showing loading chat bubble before beginChat
 function loadChat() {
-    if (!isPreloadingFinished()) {
-        createTempBubble(BOT_BUBBLE, "Loading AI, please wait", 0);
-    } else if (!startChat) {
-        beginChat();
-    }
+    createTempBubble(BOT_BUBBLE, "Loading AI, please wait", 0);
 }
 
 function beginChat() {
-    if (isPreloadingFinished()) {
-        startChat = true;
-        deleteTempBubble();
-        botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture, false);
-    }
+    deleteTempBubble();
+    botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture, false);
 }
 
 function processUserMessage(msg){
@@ -53,27 +46,6 @@ function processUserMessage(msg){
         return;
     }
     createMsgBubble(USER_BUBBLE, msg);
-
-    // Create temp bubble to show status message
-    createTempBubble(USER_BUBBLE, "Retrieving Answer", 0);
-
-    userInput.value = '';
-
-    // Scroll to the bottom
-    chatBody.scrollTop = chatBody.scrollHeight;
-
-    botResponse(msg);
-}
-
-// Takes in response from user input and replies based on input
-// Takes in a bool 'prompt' for whether to prompt the user for more input
-function botResponse(response) {
-    var prompt = true;
-    prompt = false;
-
-    showProcessingBtn();
-    // Display processing status
-    createTempBubble(BOT_BUBBLE, "Retrieving Answer", 0);
     //Clear user input box
     userInput.value = '';
     // Scroll to the bottom
@@ -97,12 +69,14 @@ function sendMessageFromSpeech(message){
 // Send user question to LLMs => retrieve and process the response
 function sendToLLMs(message) {
     console.log("posting API...");
+    // Display processing status
+    createTempBubble(BOT_BUBBLE, "Retrieving Answer", 0);
 
     //Setup request body
     const payload = {
         "app": bot_app,
-        "q": message + ". Summarise in 2 short sentences",
-        "context": "Add context from matches. Use the format:\n\nDOC_ID: 1\nTITLE: (title)\n(page_content)\n\nDOC_ID: 2\nTITLE: ...\n...",
+        "q": message + ". Answer in 2 full and very short sentences. Don't put the title in front.",
+        "context": "",
         "Followup": bot_followup,
         "Tone": bot_tone,
         "Format": bot_format,
@@ -199,6 +173,8 @@ function processBotMessage(answer, followUpQns){
                 console.log("Follow up questions found, sending follow up question...");
                 follow_up_questions = null;
             }
+
+            chatBody.scrollTop = chatBody.scrollHeight;
         }, 2000);
     }
 
@@ -341,8 +317,11 @@ function createTempBubble(userID, message, timing) {
         // Delete bubble after 'timing' seconds
         setTimeout(function () { deleteTempBubble(); }, timing);
     }
+
+    // Scroll to the bottom
+    chatBody.scrollTop = chatBody.scrollHeight;
+    
     animateMsgBubble();
-    return oneTime_txt_bubble;
 }
 
 function animateMsgBubble() {
@@ -367,6 +346,7 @@ function stopAnimateMsgBubble() {
 }
 
 function deleteTempBubble() {
+    console.log("Deleting one time text bubble...");
     stopAnimateMsgBubble();
     oneTime_txt_bubble?.remove();
     oneTime_txt_bubble = null;

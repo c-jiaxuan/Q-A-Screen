@@ -8,6 +8,22 @@ AI_PLAYER.setConfig({
   midServer: 'https://aimid.deepbrain.io/',
   // resourceServer: 'https://resource.deepbrainai.io',
   // backendServer: 'https://backend.deepbrainai.io',
+  useWebSocket: false,
+  // socketIoURL : '../../socket.io.js',
+  isWebsocketLogOn: false,
+  enableCustomVoice: false,
+  logLevel: 0,
+  isSkipBackmotion: false,
+  enableSpeechSplit: false,
+  // enablePersistantSpeechCache: false,
+  // enableBGImgDB: false,
+  // enableSpeechSplit: false,
+  // audioPrevEncodeType: wav|mp3,
+  // enableResumeWithReoladVideo: false,
+  // resumeWithReloadVideoTimeLimit: 12 * 1000,
+  // restAPITimeout: 7000,
+  // audioPrevTimeout: 30000
+  // drawFPS: 1000/16
 });
 
 //Avatar constant
@@ -30,6 +46,12 @@ var totalMessages = 0;
 var isNextSpeakRegistered = false;
 var nextSpeak = "";
 
+let isAIInit = false
+let isAudioPreviewInit = false
+
+const customVoicePackFemale = "google/en-US/FEMALE_en-US-Standard-F";
+const customVoicePackMale = "google/en-US/MALE_en-US-Standard-D";
+
 class AI_Message {
     // Constructor method for initializing properties
     constructor(message, gesture) {
@@ -43,6 +65,7 @@ botMessages["start_msg"] = new AI_Message("Hello! How can I help you for this to
 botMessages["default_msgs"] = [new AI_Message("I am not sure what you have sent, please try again."),
                                 new AI_Message("I don't quite understand what you are saying, please try again.")];
 botMessages["processing_msg"] = new AI_Message("Thank you! Please wait while I'm processing your question and I will reply to you shortly.");
+botMessages["pre_answer_msg"] = new AI_Message("Thanks for waiting. I have gathered the information and here is the answer.", "G02");
 
 initSample();
 
@@ -50,9 +73,10 @@ async function initSample() {
     initAIPlayerEvent();
     await generateClientToken();
     await generateVerifiedToken();
-
+    
     await AI_PLAYER.init({
         aiName: "M000320746_BG00007441H_light",
+        //aiName: "M000363906_BG00001502H", //Max
         size: 1.0,
         left: 0,
         top: 0,
@@ -134,6 +158,7 @@ function initAIPlayerEvent() {
         // To set custom voice
         //const customVoice = AI_PLAYER.findCustomVoice("google/en-US/FEMALE_en-US-Neural2-C");
         const customVoice = AI_PLAYER.findCustomVoice("amazon/en-US/Female_Danielle");
+        //const customVoice = AI_PLAYER.findCustomVoice(customVoicePackMale);
   
         // Set custom voice will cause issues with the AI speaking
         const isSuccess = AI_PLAYER.setCustomVoice(customVoice); 
@@ -146,6 +171,7 @@ function initAIPlayerEvent() {
   
         countPreloadMessages();
         preloadMessages();
+        loadChat();
       }
     };
 
@@ -166,14 +192,37 @@ function initAIPlayerEvent() {
         AICLIPSET_PLAY_BUFFERING: 12,
         AICLIPSET_RESTART_FROM_BUFFERING: 13,
         AIPLAYER_STATE_CHANGED: 14,
+        AI_RECONNECT_ATTEMPT: 15,
+        AI_RECONNECT_FAILED: 16,
+        AI_VISIBILITY_SHOW_COMPLETE: 17,
+        AI_VISIBILITY_HIDDEN_COMPLETE: 18,
         UNKNOWN: -1,
     });
 
+    const AIPlayerState = Object.freeze({
+        NONE: 0,
+        INITIALIZE: 1,
+        IDLE: 2,
+        PLAY: 3,
+        PAUSE: 4,
+        RELEASE: 5,
+      });
+
+    let curAIState = AIPlayerState.NONE;
     AI_PLAYER.onAIPlayerEvent = function (aiEvent) {
         let typeName = '';
         switch (aiEvent.type) {
         case AIEventType.AIPLAYER_STATE_CHANGED:
             typeName = 'AIPLAYER_STATE_CHANGED';
+            let newAIState = AI_PLAYER.getState();
+            if (
+                curAIState == AIPlayerState.INITIALIZE &&
+                newAIState == AIPlayerState.IDLE
+            ) {
+                isAIInit = true
+                console.log("AI initialization completed.");
+            }
+            curAIState = newAIState;
             break;
         case AIEventType.AI_CONNECTED:
             typeName = 'AI_CONNECTED';
@@ -186,15 +235,15 @@ function initAIPlayerEvent() {
             break;
         case AIEventType.AICLIPSET_PLAY_PREPARE_STARTED:
             typeName = 'AICLIPSET_PLAY_PREPARE_STARTED';
-            dispatchEvent(new Event('AICLIPSET_PLAY_PREPARE_STARTED'));
+            document.dispatchEvent(new Event('AICLIPSET_PLAY_PREPARE_STARTED'));
             break;
         case AIEventType.AICLIPSET_PLAY_PREPARE_COMPLETED:
             typeName = 'AICLIPSET_PLAY_PREPARE_COMPLETED';
-            dispatchEvent(new Event('AICLIPSET_PLAY_PREPARE_COMPLETED'));
+            document.dispatchEvent(new Event('AICLIPSET_PLAY_PREPARE_COMPLETED'));
             break;
         case AIEventType.AICLIPSET_PRELOAD_STARTED:
             typeName = 'AICLIPSET_PRELOAD_STARTED';
-            dispatchEvent(new Event('AICLIPSET_PRELOAD_STARTED'));
+            document.dispatchEvent(new Event('AICLIPSET_PRELOAD_STARTED'));
             break;
         case AIEventType.AICLIPSET_PRELOAD_COMPLETED:
             typeName = 'AICLIPSET_PRELOAD_COMPLETED';
@@ -202,7 +251,7 @@ function initAIPlayerEvent() {
 
             preloadCount++;
             if(isPreloadingFinished())
-                beginChat();
+                document.dispatchEvent(new Event("AI_INITIALIZED"));
             break;
         case AIEventType.AICLIPSET_PLAY_STARTED:
             typeName = 'AICLIPSET_PLAY_STARTED';
@@ -216,8 +265,7 @@ function initAIPlayerEvent() {
             break;
         case AIEventType.AICLIPSET_PLAY_COMPLETED:
             typeName = 'AICLIPSET_PLAY_COMPLETED';
-            dispatchEvent(new Event('AICLIPSET_PLAY_COMPLETED'));
-
+            document.dispatchEvent(new Event("AICLIPSET_PLAY_COMPLETED"));
             break;
         case AIEventType.AI_DISCONNECTED:
             typeName = 'AI_DISCONNECTED';
@@ -235,13 +283,33 @@ function initAIPlayerEvent() {
         case AIEventType.AICLIPSET_RESTART_FROM_BUFFERING:
             typeName = 'AICLIPSET_RESTART_FROM_BUFFERING';
             break;
+        case AIEventType.AI_RECONNECT_ATTEMPT:
+            typeName = "AI_RECONNECT_ATTEMPT";
+            break;
+        case AIEventType.AI_RECONNECT_FAILED:
+            typeName = "AI_RECONNECT_FAILED";
+            break;
+        case AIEventType.AI_VISIBILITY_SHOW_COMPLETE:
+            typeName = "AI_VISIBILITY_SHOW_COMPLETE";
+        
+            //resume after this event!
+            if (isAudioPreviewInit) { //for audio mode 
+                AI_PLAYER.resumeAudioPreview()
+            }
+            if (isAIInit) { //for mov mode 
+                AI_PLAYER.resume()
+            }
+            break;
+        case AIEventType.AI_VISIBILITY_HIDDEN_COMPLETE:
+            typeName = "AI_VISIBILITY_HIDDEN_COMPLETE";
+            break;
         case AIEventType.UNKNOWN:
             typeName = 'UNKNOWN';
             break;
     }
 
     console.log('onAIPlayerEvent:', aiEvent.type, typeName, 'clipSet:', aiEvent.clipSet);
-    return;
+        return;
     };
 
     //AIError & callback
@@ -302,10 +370,24 @@ async function speak(text, gst) {
     }
     else
     {
-        var msgToSpeak = breakdownSpeak(text);
-        AI_PLAYER.send(msgToSpeak);
-    }
+        AI_PLAYER.send({ text: botMessages["pre_answer_msg"].message, gst: botMessages["pre_answer_msg"].gesture });
 
+        var msgToSpeak = breakdownSpeak(text);
+        sendToAvatar(msgToSpeak, 0);
+    }
+}
+
+function sendToAvatar(msg, index){
+    if(index >= msg.length) return;
+
+    console.log(msg[index]);
+
+    setTimeout(() => {
+        const newString = msg[index].replace(/\*/g, "");
+
+        AI_PLAYER.send(newString);
+        sendToAvatar(msg, index+1);
+    }, index==0 ? 0 : 1000);
 }
   
 async function preload(clipSet) {
@@ -393,7 +475,7 @@ function countPreloadMessages(){
 
 // Check if preload finished
 function isPreloadingFinished() {
-    console.log("Checking if preloaded finish against " + totalMessages + " items ...");
+    console.log("Preloaded " + preloadCount + "/" + totalMessages + " items ...");
     return preloadCount >= totalMessages;
 }
 

@@ -155,9 +155,10 @@ function stopRecording(hasUserInput) {
   //Send recognized text to chatbot
   if(userVoiceInput != "")
   {
-    sendMessageFromSpeech(userVoiceInput);
     //Update UI to processing
     showProcessingBtn();
+
+    sendMessageFromSpeech(userVoiceInput);
   }
   else
   {

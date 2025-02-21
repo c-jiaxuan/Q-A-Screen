@@ -84,9 +84,13 @@ body::before {
 
 .speak-button-container {
     height: 7%;
-    display: flex; 
+    display: flex !important; 
     flex-direction: row; 
     justify-content: center;
+}
+
+#reset-button{
+    display: none;
 }
 
 .chat-container {

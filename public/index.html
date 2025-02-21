@@ -39,12 +39,14 @@
           <img src="./img/Control_Signs/Send.png" alt="Snow">
         </button>
       </div>
-      <div id="speak-button-container" class="speak-button-container" onclick="startRecognize()">
-        <button class="button button1">
+      <!-- <div id="speak-button-container" class="speak-button-container" onclick="startRecognize()"> -->
+      <div id="speak-button-container" class="speak-button-container">
+        <button id="speak-button-text" class="button button1" onclick="onTranscribeBtnClick()">
           <img src="./img/Control_Signs/Mic-Icon.png" alt="Snow">
-          Speak with AI</button>
+          Speak to AI</button>
+        <button id="reset-button" class="button button1" onclick="onResetTranscribe()" >Reset</button>
       </div>
-      <div id="listening-button-container" class="speak-button-container" onclick="endRecognize(false)">
+      <!-- <div id="listening-button-container" class="speak-button-container" onclick="endRecognize(false)">
         <button class="button button1">
           <img src="./img/Control_Signs/Mic-Icon.png" alt="Snow">
           Listening...</button>
@@ -53,7 +55,7 @@
         <button class="button button1">
           <img src="./img/Control_Signs/Mic-Icon.png" alt="Snow">
           Processing...</button>
-      </div>
+      </div> -->
     </div>
     <div id="AIPlayerWrapper"></div>
   </body>
@@ -71,4 +73,5 @@ src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
   <script src="./js/chatbot.js"></script>
   <script src="./js/google-stt.js"></script>
   <script src="./js/avatar.js"></script>
+  <script src="./demo_aws_sdk.js"></script>
 </html>

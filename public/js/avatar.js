@@ -65,6 +65,7 @@ botMessages["start_msg"] = new AI_Message("Hello! How can I help you for this to
 botMessages["default_msgs"] = [new AI_Message("I am not sure what you have sent, please try again."),
                                 new AI_Message("I don't quite understand what you are saying, please try again.")];
 botMessages["processing_msg"] = new AI_Message("Thank you! Please wait while I'm processing your question and I will reply to you shortly.");
+botMessages["pre_answer_msg"] = new AI_Message("Thanks for waiting. I have gathered the information and here is the answer.", "G02");
 
 initSample();
 
@@ -369,10 +370,24 @@ async function speak(text, gst) {
     }
     else
     {
-        var msgToSpeak = breakdownSpeak(text);
-        AI_PLAYER.send(msgToSpeak);
-    }
+        AI_PLAYER.send({ text: botMessages["pre_answer_msg"].message, gst: botMessages["pre_answer_msg"].gesture });
 
+        var msgToSpeak = breakdownSpeak(text);
+        sendToAvatar(msgToSpeak, 0);
+    }
+}
+
+function sendToAvatar(msg, index){
+    if(index >= msg.length) return;
+
+    console.log(msg[index]);
+
+    setTimeout(() => {
+        const newString = msg[index].replace(/\*/g, "");
+
+        AI_PLAYER.send(newString);
+        sendToAvatar(msg, index+1);
+    }, index==0 ? 0 : 1000);
 }
   
 async function preload(clipSet) {

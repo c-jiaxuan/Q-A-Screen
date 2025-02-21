@@ -46,8 +46,6 @@ function processUserMessage(msg){
 
     // Display user input
     createMsgBubble(USER_BUBBLE, msg);
-    // Display processing status
-    createTempBubble(BOT_BUBBLE, "Retrieving Answer", 0);
     //Clear user input box
     userInput.value = '';
     // Scroll to the bottom
@@ -71,12 +69,14 @@ function sendMessageFromSpeech(message){
 // Send user question to LLMs => retrieve and process the response
 function sendToLLMs(message) {
     console.log("posting API...");
+    // Display processing status
+    createTempBubble(BOT_BUBBLE, "Retrieving Answer", 0);
 
     //Setup request body
     const payload = {
         "app": bot_app,
-        "q": message + ". Summarise in 2 short sentences",
-        "context": "Add context from matches. Use the format:\n\nDOC_ID: 1\nTITLE: (title)\n(page_content)\n\nDOC_ID: 2\nTITLE: ...\n...",
+        "q": message + ". Answer in 2 full and very short sentences. Don't put the title in front.",
+        "context": "",
         "Followup": bot_followup,
         "Tone": bot_tone,
         "Format": bot_format,
@@ -317,6 +317,10 @@ function createTempBubble(userID, message, timing) {
         // Delete bubble after 'timing' seconds
         setTimeout(function () { deleteTempBubble(); }, timing);
     }
+
+    // Scroll to the bottom
+    chatBody.scrollTop = chatBody.scrollHeight;
+    
     animateMsgBubble();
 }
 

@@ -1,5 +1,6 @@
 
 let transcribedText = null;
+let isAlerted = false;
 
 class Transcriber {
   async startTranscribe() {
@@ -167,9 +168,14 @@ document.addEventListener("READY_TO_TRANSCRIBE", async () => {
   if(transcribedText == null) transcribedText = document.getElementById("AILiveInputTextVoice");
 
   if (state == APP_STATE.IDLE) {
+    if(!isAlerted){
+      isAlerted = true;
+      alert("Speak and wait for your speech to show up before press SEND. You can press RESET to clear detected speech and try again.");
+    }
+    
     const isStarted = await appCtlr.startTranscribe()
     if (isStarted) {
-      transcribedText.innerHTML = 'Please speak now...'
+      transcribedText.innerHTML = 'Please speak now...';
     }
   } else {
     if (state == APP_STATE.TRANSCRIBING) {

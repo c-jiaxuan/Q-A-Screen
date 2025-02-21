@@ -51,7 +51,7 @@ function processUserMessage(msg){
     // Scroll to the bottom
     chatBody.scrollTop = chatBody.scrollHeight;
 
-    sendToLLMs(response);
+    sendToLLMs(msg);
 }
 
 // Received input from chatbox

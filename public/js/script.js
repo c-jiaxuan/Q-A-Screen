@@ -31,5 +31,5 @@ function onResetTranscribe(){
 }
 
 document.addEventListener('Transcribe Completed', function (e) {
-    sendToLLMs(e.detail);
+    sendToLLM(e.detail);
 });

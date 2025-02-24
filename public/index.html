@@ -24,16 +24,16 @@
     </div>
     <div id="controls" class="controls-container">
       <div>
-      <button class="button button" onclick="">
-        <img src="./img/Control_Signs/Skip-forward.png" alt="Snow">
-        Skip</button>
+      <button id="use-ava-btn" class="button button" onclick="UseAvatar()">
+        <!-- <img src="./img/Control_Signs/Skip-forward.png" alt="Snow"> -->
+        Use Avatar</button>
       </div>
-      <button class="button button" onclick="">
-        <img src="./img/Control_Signs/Repeat.png" alt="Snow">
-        Repeat</button>
-      <button class="button button" onclick="">
+      <button id="use-tts-btn" class="button button" onclick="UseTTS()">
+        <!-- <img src="./img/Control_Signs/Repeat.png" alt="Snow"> -->
+        Use TTS</button>
+      <!-- <button class="button button" onclick="">
         <img src="./img/Control_Signs/Stop-circle.png" alt="Snow">
-        End</button>
+        End</button> -->
     </div>
     <div id="chat-container" class="chat-container">
       <div id="chat-history-container" class="chat-history-container">
@@ -64,6 +64,9 @@
       </div> -->
     </div>
     <div id="AIPlayerWrapper"></div>
+    <audio id="audioPlayback">
+      <source id="audioSource" type="audio/mp3" src="" />
+    </audio>
   </body>
   <script
     type="text/javascript"
@@ -75,10 +78,12 @@ src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
 ></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdn-aihuman.deepbrainai.io/sdk/web/aiPlayer-1.5.2.min.js"></script>
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1692.0.min.js"></script>
   <script src="./js/script.js"></script>
   <script src="./js/chatbot.js"></script>
   <script src="./js/google-stt.js"></script>
   <script src="./js/avatar.js"></script>
   <script src="./js/start-screen-overlay.js"></script>
+  <script src="./js/polly.js"></script>
   <script src="./demo_aws_sdk.js"></script>
 </html>

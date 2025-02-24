@@ -130,6 +130,12 @@ function sendToLLMs(message) {
     });
 }
 
+let LLMdelay = 2000;
+
+function updateChatbotDelay(isDelay){
+    LLMdelay = isDelay ? 2000 : 0;
+}
+
 // Process the message from LLMs to display to user
 function processBotMessage(answer, followUpQns){
     //LLMs doesn't reply anything => didn't understand the question
@@ -175,7 +181,7 @@ function processBotMessage(answer, followUpQns){
             }
 
             chatBody.scrollTop = chatBody.scrollHeight;
-        }, 2000);
+        }, LLMdelay);
     }
 
     // Scroll to the bottom

@@ -109,6 +109,14 @@ body::before {
     z-index: 1
 }
 
+#use-ava-btn{
+    
+}
+
+#use-tts-btn{
+
+}
+
 .chat-history-container {
     overflow-y: auto;
     height: 100%;

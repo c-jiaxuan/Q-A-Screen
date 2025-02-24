@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="en" class="scs-demo">
-<head>
-  <!--meta-->
-  <meta charset="utf-8" />
-  <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-  <meta 
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" 
-    />
-  <meta name="title" content="demo" />
-    <title>QA Screen</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
+  <head>
+    <!--meta-->
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta 
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" 
+      />
+    <meta name="title" content="demo" />
+      <title>QA Screen</title>
+      <link rel="stylesheet" href="styles.css">
+  </head>
+  <div id="overlay" class="overlay">
+    <div class="overlay-content">
+        <h2>Welcome to the Changi Chapel Museum</h2>
+        <button class="button button2" id="start-button">Meet the AI Concierge</button>
+    </div>
+  </div>
   <body>
     <div class="logo-container">
       <img src="./img/CCMLogo white.svg" alt="Logo" class="logo">
@@ -73,5 +79,6 @@ src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
   <script src="./js/chatbot.js"></script>
   <script src="./js/google-stt.js"></script>
   <script src="./js/avatar.js"></script>
+  <script src="./js/start-screen-overlay.js"></script>
   <script src="./demo_aws_sdk.js"></script>
 </html>

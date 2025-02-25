@@ -47,7 +47,6 @@ function processUserMessage(msg){
     if (msg == '') 
     {
         // Reset all parameters
-        
         return;
     }
 
@@ -71,7 +70,7 @@ function sendMessageFromChatbox() {
 
 // Received input from speech
 function sendMessageFromSpeech(message){
-    console.log("Received message from stt");
+    console.log("Received '" + message + "' from stt");
     processUserMessage(message);
 }
 
@@ -82,7 +81,17 @@ async function sendToLLM(message) {
 async function sentToSimilarity(message) {
     //const similarityResult = await fetch(llm_similarity_api_url + new URLSearchParams(form).toString()).then((d) => d.json());
 
+    if (message == '') {
+        // If there is no message, return
+        console.log("No message detected, returning...");
+        var res = getRandomElement(botMessages['default_msgs']);
+        createMsgBubble(BOT_BUBBLE, res.message);
+        speak(res.message, res.gesture);
+        return;
+    }
+
     var queryString = llm_similarity_api_url + "?app=" + bot_app + "&q=" + message + "&k=" + maxSelected;
+    console.log("queryString = " + queryString);
 
     fetch(queryString, {
         method: 'GET',

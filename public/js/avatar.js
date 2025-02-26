@@ -38,6 +38,8 @@ const DATA = {
     texts: [], // AI Speak List
   };
 
+let isUsingAvatar = true;
+
 // To track how many messages have been preloaded
 var preloadCount = 0;
 var totalMessages = 0;
@@ -68,6 +70,7 @@ botMessages["processing_msg"] = new AI_Message("Thank you! Please wait while I'm
 botMessages["pre_answer_msg"] = new AI_Message("Thanks for waiting. I have gathered the information and here is the answer.", "G02");
 
 initSample();
+UseAvatar();
 
 async function initSample() {
     initAIPlayerEvent();
@@ -360,20 +363,25 @@ function initAIPlayerEvent() {
 // =========================== AIPlayer Function ================================ //
 
 async function speak(text, gst) {
-    await refreshTokenIFExpired();
+    if(isUsingAvatar){
+        await refreshTokenIFExpired();
 
-    console.log("Gesture: " + gst + " Speaking: ", text);
+        console.log("Gesture: " + gst + " Speaking: ", text);
+        
+        if(isPreloadMessage(text))
+        {
+            AI_PLAYER.send({ text: text, gst: gst });
+        }
+        else
+        {
+            AI_PLAYER.send({ text: botMessages["pre_answer_msg"].message, gst: botMessages["pre_answer_msg"].gesture });
     
-    if(isPreloadMessage(text))
-    {
-        AI_PLAYER.send({ text: text, gst: gst });
+            var msgToSpeak = breakdownSpeak(text);
+            sendToAvatar(msgToSpeak, 0);
+        }
     }
-    else
-    {
-        AI_PLAYER.send({ text: botMessages["pre_answer_msg"].message, gst: botMessages["pre_answer_msg"].gesture });
-
-        var msgToSpeak = breakdownSpeak(text);
-        sendToAvatar(msgToSpeak, 0);
+    else{
+        speakText(text);
     }
 }
 
@@ -503,4 +511,19 @@ function isPreloadMessage(msg){
         }
     }
     return false;
+}
+
+
+function UseAvatar(){
+    isUsingAvatar = true;
+    $("#use-ava-btn").css("background", "#5d971e");
+    $("#use-tts-btn").css("background", "#aa8200");
+    updateChatbotDelay(true);
+}
+
+function UseTTS(){
+    isUsingAvatar = false;
+    $("#use-tts-btn").css("background", "#5d971e");
+    $("#use-ava-btn").css("background", "#aa8200");
+    updateChatbotDelay(false);
 }

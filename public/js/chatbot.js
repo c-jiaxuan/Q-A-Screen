@@ -7,6 +7,13 @@ var bot_language = "English";
 var bot_followup = true;
 
 var llm_summarise_api_url = 'https://gramener.com/docsearch/summarize';
+var llm_similarity_api_url = 'https://gramener.com/docsearch/similarity';
+
+// For similarity
+let result;
+// Retrieve the top 3 similar documents
+const maxSelected = 10;
+// var context = "";
 
 // Used to store followup questions
 var follow_up_questions = null;
@@ -51,7 +58,9 @@ function processUserMessage(msg){
     // Scroll to the bottom
     chatBody.scrollTop = chatBody.scrollHeight;
 
-    sendToLLMs(msg);
+    // sentToSimilarity(msg);
+    // sendToSummarize(msg);
+    sendToLLM(msg);
 }
 
 // Received input from chatbox
@@ -62,21 +71,87 @@ function sendMessageFromChatbox() {
 
 // Received input from speech
 function sendMessageFromSpeech(message){
-    console.log("Received message from stt");
+    console.log("Received '" + message + "' from stt");
     processUserMessage(message);
 }
 
+async function sendToLLM(message) {
+    sentToSimilarity(message);
+}
+
+async function sentToSimilarity(message) {
+    //const similarityResult = await fetch(llm_similarity_api_url + new URLSearchParams(form).toString()).then((d) => d.json());
+
+    if (message == '') {
+        // If there is no message, return
+        console.log("No message detected, returning...");
+        var res = getRandomElement(botMessages['default_msgs']);
+        createMsgBubble(BOT_BUBBLE, res.message);
+        speak(res.message, res.gesture);
+        return;
+    }
+
+    var queryString = llm_similarity_api_url + "?app=" + bot_app + "&q=" + message + "&k=" + maxSelected;
+    console.log("queryString = " + queryString);
+
+    fetch(queryString, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())  // Convert response to JSON
+    .then(data => {
+        console.log(data); 
+
+        result = { content: "" };
+        Object.assign(result, data);
+
+        // Assign relevance to each document based on the score
+        result.matches.forEach((doc) => (doc.relevance = (1.5 - doc.score) / (1.5 - 0.8)));
+        // Sort by relevance
+        result.matches.sort((a, b) => b.relevance - a.relevance);
+
+        result.links = [];
+        result.similarity.forEach((values, i) =>
+          values.forEach((similarity, j) => {
+            if (i != j) result.links.push({ source: result.matches[i], target: result.matches[j], similarity });
+          }),
+        );
+
+        // Start by showing the top few links
+        const similarities = result.links.map((d) => d.similarity).sort((a, b) => b - a);
+        var similarityValue = similarities[Math.min(50, similarities.length - 1)];
+        
+        //console.log("similarityValue = " + similarityValue);
+        //console.log("result = " + JSON.stringify(result));
+
+        // Safely extract message content   
+        // let context = data.matches?.[0]?.page_content || "No content available";
+        // let score = data.similarity?.[0]?.[0] || "No scores available";
+
+        sendToSummarize(message, context);
+    })    // Handle the data
+    .catch(error => console.error('Error:', error)); // Handle errors
+}
+
 // Send user question to LLMs => retrieve and process the response
-function sendToLLMs(message) {
+function sendToSummarize(message, context) {
     console.log("posting API...");
     // Display processing status
     createTempBubble(BOT_BUBBLE, "Retrieving Answer", 0);
+
+    result.content = "";
+    result.done = false;
 
     //Setup request body
     const payload = {
         "app": bot_app,
         "q": message + ". Answer in 2 full and very short sentences. Don't put the title in front.",
-        "context": "",
+        "context": result.matches
+                .slice(0, maxSelected)
+                .map((d, i) => `DOC_ID: ${i + 1}\nTITLE: ${d.metadata.h1}\n${d.page_content}\n`)
+                .join("\n"),
         "Followup": bot_followup,
         "Tone": bot_tone,
         "Format": bot_format,
@@ -130,6 +205,12 @@ function sendToLLMs(message) {
     });
 }
 
+let LLMdelay = 2000;
+
+function updateChatbotDelay(isDelay){
+    LLMdelay = isDelay ? 2000 : 0;
+}
+
 // Process the message from LLMs to display to user
 function processBotMessage(answer, followUpQns){
     //LLMs doesn't reply anything => didn't understand the question
@@ -175,7 +256,7 @@ function processBotMessage(answer, followUpQns){
             }
 
             chatBody.scrollTop = chatBody.scrollHeight;
-        }, 2000);
+        }, LLMdelay);
     }
 
     // Scroll to the bottom

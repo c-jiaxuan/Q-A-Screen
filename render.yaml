@@ -1,0 +1,14 @@
+# Exported from Render on 2025-02-27T03:11:40Z
+services:
+- type: web
+  name: Demo
+  runtime: node
+  repo: https://github.com/c-jiaxuan/Q-A-Screen
+  plan: starter
+  envVars:
+  - key: port
+    sync: false
+  region: singapore
+  buildCommand: rm -rf node_modules; npm install
+  startCommand: npm run dev
+version: "1"

@@ -4,7 +4,7 @@ services:
   name: Demo
   runtime: node
   repo: https://github.com/c-jiaxuan/Q-A-Screen
-  plan: starter
+  plan: free
   envVars:
   - key: port
     sync: false

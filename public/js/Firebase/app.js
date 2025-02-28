@@ -1,4 +1,4 @@
-import { firebaseConfig } from "./firebase-config.js";
+import { firebaseConfig } from "../../firebase/firebase-config.js";
 import { getFirestore, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 

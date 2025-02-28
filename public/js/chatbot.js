@@ -1,3 +1,19 @@
+class Message {
+    constructor(msg_content, sender, date, time) {
+        this.msg_content = msg_content;
+        this.sender = sender;
+        this.date = date;
+        this.time = time;
+        this.msg_id = assignMsgID();
+    }
+}
+
+// Used to store messages
+let messageHistory = [];
+
+// Used to store all previous messages to check for uuid
+let all_messageHistory = [];
+
 // LLMs API Settings
 // Change these to change the LLMs response
 var bot_app = "sgroots"; // Don't change this
@@ -36,6 +52,12 @@ const now = new Date();
 const dateString = now.toLocaleDateString();
 const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+var currMessage = null;
+
+var startTime = 0;
+var endTime = 0;
+var llmTiming = 0;
+
 // Showing loading chat bubble before beginChat
 function loadChat() {
     createTempBubble(BOT_BUBBLE, "Loading AI, please wait", 0);
@@ -52,8 +74,14 @@ function processUserMessage(msg){
         // Reset all parameters
         return;
     }
+
     createMsgBubble(USER_BUBBLE, msg);
-    //Clear user input box
+
+    // Send message to database
+    // User message has no LLM and Avatar speed
+    addMessageData(currMessage, 0, 0);
+
+    // Clear user input box
     userInput.value = '';
     // Scroll to the bottom
     chatBody.scrollTop = chatBody.scrollHeight;
@@ -87,12 +115,16 @@ async function sentToSimilarity(message) {
         console.log("No message detected, returning...");
         var res = getRandomElement(botMessages['default_msgs']);
         createMsgBubble(BOT_BUBBLE, res.message);
+        // Preloaded message has no LLM and Avatar speed
+        addMessageData(currMessage, 0, 0);
         speak(res.message, res.gesture);
         return;
     }
 
     var queryString = llm_similarity_api_url + "?app=" + bot_app + "&q=" + message + "&k=" + maxSelected;
     console.log("queryString = " + queryString);
+
+    startTime = performance.now();
 
     fetch(queryString, {
         method: 'GET',
@@ -199,6 +231,10 @@ function sendToSummarize(message, context) {
         console.log("Follow-Up Questions:", followUpQuestions);
 
         processBotMessage(messageContent, followUpQuestions);
+
+        endTime = performance.now();
+        llmTiming = (endTime - startTime) / 1000;
+        console.log("LLM Took : " + llmTiming + " seconds to respond");
     })
     .catch(error => {
         console.error('Error:', error);
@@ -232,11 +268,16 @@ function processBotMessage(answer, followUpQns){
             //Display bot message to user
             createMsgBubble(BOT_BUBBLE, answer);
 
+            addMessageData(currMessage, llmTiming, 0);
+
             //Store follow up questions for future usage
             follow_up_questions = followUpQns;
             if (follow_up_questions != null) {
                 var followupMessageElement = createMsgBubble(BOT_BUBBLE, "");
                 var followupSpan = followupMessageElement.querySelector('span');
+                // Followup questions has no LLM and Avatar speed
+                currMessage.msg_content = follow_up_questions;
+                addMessageData(currMessage, 0, 0);
     
                 let header = document.createElement("p");
                 //**Add avatar talking**
@@ -308,12 +349,17 @@ function botMessage(setMessage, gesture, delay) {
             function showBotMessage(){
                 showRecordBtn();
                 createMsgBubble(BOT_BUBBLE, setMessage);
+
+                addMessageData(currMessage, llmTiming, 0);
     
                 deleteTempBubble();
     
                 if (follow_up_questions != null) {
                     const followupMessageElement = createMsgBubble(BOT_BUBBLE, "");
                     const followupSpan = followupMessageElement.querySelector('span');
+                    // Followup questions has no LLM and Avatar speed
+                    currMessage.msg_content = follow_up_questions;
+                    addMessageData(currMessage, 0, 0);
     
                     let header = document.createElement("p");
                     //**Add avatar talking**
@@ -343,11 +389,16 @@ function botMessage(setMessage, gesture, delay) {
         showRecordBtn();
         createMsgBubble(BOT_BUBBLE, setMessage);
 
+        addMessageData(currMessage, llmTiming, 0);
+
         deleteTempBubble();
 
         if (follow_up_questions != null) {
             const followupMessageElement = createMsgBubble(USER_BUBBLE, "");
             const followupSpan = followupMessageElement.querySelector('span');
+            // Followup questions has no LLM and Avatar speed
+            currMessage.msg_content = follow_up_questions;
+            addMessageData(currMessage, 0, 0);
 
             let header = document.createElement("p");
             //**Add avatar talking**
@@ -379,6 +430,10 @@ function createMsgBubble(userID, message) {
     const botSpan = botMessageDiv.querySelector('span');
     // After typing finishes, swap to HTML with bold formatting
     botSpan.innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+    var msgObj = new Message(message, userID, dateString, timeString);
+    currMessage = msgObj;
+    messageHistory.push(msgObj);
 
     return botMessageDiv;
 }
@@ -436,4 +491,28 @@ function deleteTempBubble() {
 function getRandomElement(arr) {
     const randomIndex = Math.floor(Math.random() * arr.length);
     return arr[randomIndex];
+}
+
+function generateUUID() {
+    let uuid = '';
+    for (let i = 0; i < 9; i++) {
+        uuid += Math.floor(Math.random() * 10).toString();
+    }
+    return uuid;
+}
+
+function assignMsgID () {
+    // Generate unique 9-digit ID
+    var uuid = generateUUID();
+
+    // Check for all messages if ID exists
+    for (var i = 0; i < messageHistory.length; i++) {
+        if (uuid == messageHistory[i].msg_id) {
+            uuid = generateUUID();
+            // Restart loop and check from start again
+            i = 0;
+        }
+    }
+    // If doesnt exists assign message with ID
+    return uuid;
 }

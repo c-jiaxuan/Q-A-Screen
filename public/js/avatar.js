@@ -51,6 +51,10 @@ var nextSpeak = "";
 let isAIInit = false
 let isAudioPreviewInit = false
 
+var speak_startTime = 0;
+var speak_endTime = 0;
+var speak_totalTime = 0;
+
 const customVoicePackFemale = "google/en-US/FEMALE_en-US-Standard-F";
 const customVoicePackMale = "google/en-US/MALE_en-US-Standard-D";
 
@@ -264,11 +268,19 @@ function initAIPlayerEvent() {
                 speak(nextSpeak);
             }
 
+            speak_startTime = performance.now();
+
             document.dispatchEvent(new Event('AICLIPSET_PLAY_STARTED'));
             break;
         case AIEventType.AICLIPSET_PLAY_COMPLETED:
             typeName = 'AICLIPSET_PLAY_COMPLETED';
             document.dispatchEvent(new Event("AICLIPSET_PLAY_COMPLETED"));
+
+            speak_endTime = performance.now();
+
+            speak_totalTime = (speak_endTime - speak_startTime) / 1000;
+            console.log("Avatar speech synthesization took " + speak_totalTime + " seconds");
+
             break;
         case AIEventType.AI_DISCONNECTED:
             typeName = 'AI_DISCONNECTED';

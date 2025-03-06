@@ -1,5 +1,6 @@
 class Message {
     constructor(msg_content, sender, date, time) {
+        this.app_name = document.title;
         this.msg_content = msg_content;
         this.sender = sender;
         this.date = date;

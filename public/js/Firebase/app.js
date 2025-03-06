@@ -15,6 +15,7 @@ async function addMessageData(message, llm_speed, avatar_speed) {
   try {
     const docRef = await addDoc(collection(db, 'Chat History'), {
       Date_Time: Timestamp.now(),
+      App_Name: message.app_name,
       Message_Content: message.msg_content,
       Sender: message.sender,
       LLM_Speed: llm_speed,

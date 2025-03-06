@@ -124,7 +124,7 @@ async function generateClientToken() {
 //         console.log("Error: " + result?.error);
 //     }
 // }
-  
+
 async function generateVerifiedToken() {
     const result = await AI_PLAYER.generateToken({ appId: DATA.appId, token: DATA.clientToken });
   
@@ -136,8 +136,8 @@ async function generateVerifiedToken() {
       console.log('generateVerifiedToken Error: ' + result);
     }
 }
-  
-  // if token is expired, get refresh clientToken, verifiedToken
+
+// if token is expired, get refresh clientToken, verifiedToken
 async function refreshTokenIFExpired() {
     const afterExpired = moment().unix() + 60 * 60; // compare expire after 1 hour
     if (!DATA.tokenExpire || DATA.tokenExpire <= afterExpired) {

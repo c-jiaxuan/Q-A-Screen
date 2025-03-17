@@ -263,13 +263,16 @@ function processBotMessage(answer, followUpQns){
         // Show processing status
         createTempBubble(BOT_BUBBLE, "Processing the answer", 0);
 
-        setTimeout(() => { 
+        setTimeout(async () => { 
+            //Send to avatar to speak
+            await speak(answer);
+
             // Delete processing status after 2 seconds
             deleteTempBubble();
             //Display bot message to user
             createMsgBubble(BOT_BUBBLE, answer);
 
-            addMessageData(currMessage, llmTiming, 0);
+            addMessageData(currMessage, llmTiming, speak_totalTime);
 
             //Store follow up questions for future usage
             follow_up_questions = followUpQns;
@@ -303,9 +306,6 @@ function processBotMessage(answer, followUpQns){
 
     // Scroll to the bottom
     chatBody.scrollTop = chatBody.scrollHeight;
-
-    //Send to avatar to speak
-    speak(answer);
 }
 
 let flagTriggered = false;
@@ -386,13 +386,17 @@ function botMessage(setMessage, gesture, delay) {
     }
     else
     {
-        speak(setMessage.toString(), gesture);
-        showRecordBtn();
-        createMsgBubble(BOT_BUBBLE, setMessage);
+        setTimeout(async () => {
+            deleteTempBubble();
 
-        addMessageData(currMessage, llmTiming, 0);
-
-        deleteTempBubble();
+            await speak(setMessage.toString(), gesture);
+            
+            showRecordBtn();
+            
+            createMsgBubble(BOT_BUBBLE, setMessage);
+    
+            addMessageData(currMessage, llmTiming, 0);
+        }, 2000);
 
         if (follow_up_questions != null) {
             const followupMessageElement = createMsgBubble(USER_BUBBLE, "");

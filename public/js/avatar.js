@@ -54,6 +54,10 @@ let isAudioPreviewInit = false
 const customVoicePackFemale = "google/en-US/FEMALE_en-US-Standard-F";
 const customVoicePackMale = "google/en-US/MALE_en-US-Standard-D";
 
+const appId = "deepbrain.io";
+const userKey = "bb872cb0-c6da-4c32-b68d-15ff95679837";
+
+
 class AI_Message {
     // Constructor method for initializing properties
     constructor(message, gesture) {
@@ -90,35 +94,35 @@ async function initSample() {
 // =========================== AIPlayer Setup ================================ //
 
 // Method for v1.5.3
-// async function generateClientToken() {
-//     const result = await makeRequest(
-//       'GET',
-//       `${authServer}/api/aihuman/generateClientToken?appId=${appId}&userKey=${userKey}`,
-//     );
-  
-//     if (result?.succeed) {
-//       DATA.clientToken = result.token;
-//       DATA.appId = result.appId;
-//     } else {
-//       console.log('generateClientToken Error:', result);
-//     }
-//   }
-
 async function generateClientToken() {
-    const result = await makeRequest("GET", "/api/generateJWT");
-    console.log("Generate Token");
-    if (result) {
-        console.log('generateClientToken', result)
-
-        // check request success
-        DATA.clientToken = result.token;
-        DATA.appId = result.appId;
-    } 
-    else 
-    {
-        console.log("Error: " + result?.error);
+    const result = await makeRequest(
+      'GET',
+      `${authServer}/api/aihuman/generateClientToken?appId=${appId}&userKey=${userKey}`,
+    );
+  
+    if (result?.succeed) {
+      DATA.clientToken = result.token;
+      DATA.appId = result.appId;
+    } else {
+      console.log('generateClientToken Error:', result);
     }
-}
+  }
+
+// async function generateClientToken() {
+//     const result = await makeRequest("GET", "/api/generateJWT");
+//     console.log("Generate Token");
+//     if (result) {
+//         console.log('generateClientToken', result)
+
+//         // check request success
+//         DATA.clientToken = result.token;
+//         DATA.appId = result.appId;
+//     } 
+//     else 
+//     {
+//         console.log("Error: " + result?.error);
+//     }
+// }
   
 async function generateVerifiedToken() {
     const result = await AI_PLAYER.generateToken({ appId: DATA.appId, token: DATA.clientToken });

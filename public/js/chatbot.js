@@ -80,7 +80,7 @@ function processUserMessage(msg){
 
     // Send message to database
     // User message has no LLM and Avatar speed
-    addMessageData(currMessage, 0, 0);
+    //addMessageData(currMessage, 0, 0);
 
     // Clear user input box
     userInput.value = '';
@@ -117,7 +117,7 @@ async function sentToSimilarity(message) {
         var res = getRandomElement(botMessages['default_msgs']);
         createMsgBubble(BOT_BUBBLE, res.message);
         // Preloaded message has no LLM and Avatar speed
-        addMessageData(currMessage, 0, 0);
+        //addMessageData(currMessage, 0, 0);
         speak(res.message, res.gesture);
         return;
     }
@@ -272,7 +272,7 @@ function processBotMessage(answer, followUpQns){
             //Display bot message to user
             createMsgBubble(BOT_BUBBLE, answer);
 
-            addMessageData(currMessage, llmTiming, speak_totalTime);
+            //addMessageData(currMessage, llmTiming, speak_totalTime);
 
             //Store follow up questions for future usage
             follow_up_questions = followUpQns;
@@ -281,7 +281,7 @@ function processBotMessage(answer, followUpQns){
                 var followupSpan = followupMessageElement.querySelector('span');
                 // Followup questions has no LLM and Avatar speed
                 currMessage.msg_content = follow_up_questions;
-                addMessageData(currMessage, 0, 0);
+                //addMessageData(currMessage, 0, 0);
     
                 let header = document.createElement("p");
                 //**Add avatar talking**
@@ -351,7 +351,7 @@ function botMessage(setMessage, gesture, delay) {
                 showRecordBtn();
                 createMsgBubble(BOT_BUBBLE, setMessage);
 
-                addMessageData(currMessage, llmTiming, 0);
+                //addMessageData(currMessage, llmTiming, 0);
     
                 deleteTempBubble();
     
@@ -360,7 +360,7 @@ function botMessage(setMessage, gesture, delay) {
                     const followupSpan = followupMessageElement.querySelector('span');
                     // Followup questions has no LLM and Avatar speed
                     currMessage.msg_content = follow_up_questions;
-                    addMessageData(currMessage, 0, 0);
+                    //addMessageData(currMessage, 0, 0);
     
                     let header = document.createElement("p");
                     //**Add avatar talking**
@@ -395,7 +395,7 @@ function botMessage(setMessage, gesture, delay) {
             
             createMsgBubble(BOT_BUBBLE, setMessage);
     
-            addMessageData(currMessage, llmTiming, 0);
+            //addMessageData(currMessage, llmTiming, 0);
         }, 2000);
 
         if (follow_up_questions != null) {
@@ -403,7 +403,7 @@ function botMessage(setMessage, gesture, delay) {
             const followupSpan = followupMessageElement.querySelector('span');
             // Followup questions has no LLM and Avatar speed
             currMessage.msg_content = follow_up_questions;
-            addMessageData(currMessage, 0, 0);
+            //addMessageData(currMessage, 0, 0);
 
             let header = document.createElement("p");
             //**Add avatar talking**

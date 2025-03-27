@@ -9,7 +9,7 @@ body {
 
 body::before {
     content: "";
-    background: url('./img/changi-chapel-courtyard.jpg') no-repeat center center;
+    background: url('./img/gmaps_panasonic.png') no-repeat center center;
     background-size: cover;
     position: absolute;
     top: 0;
@@ -146,7 +146,7 @@ body::before {
     color: rgb(32, 32, 32);
 }
 .message.bot span {
-    background: #aa8200;
+    background: #188bce;
     color: rgb(255, 255, 255);
 }
 .message-time {
@@ -161,7 +161,7 @@ body::before {
     margin: 5px 0;
     height: auto;
     width: 100%;
-    background: #aa8200;
+    background: #188bce;
     color: white;
     border: none;
     border-radius: 5px;
@@ -188,7 +188,7 @@ body::before {
 }
 
 .button:hover {
-    background: #806200;
+    background: #0f5680;
 }
 
 .button1 {
@@ -254,4 +254,36 @@ body::before {
     font-weight: bold; /* Make it bold */
     color: #333; /* Darker color for visibility */
     margin-bottom: 15px; /* Add spacing */
+}
+
+/* Loading Container */
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between spinner and text */
+    margin-bottom: 20px;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    border: 5px solid rgba(0, 0, 0, 0.1);
+    border-top: 5px solid #333;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+/* Loading Text */
+.loading-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Spinner Animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

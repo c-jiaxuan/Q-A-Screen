@@ -68,7 +68,7 @@ class AI_Message {
 }
 
 let botMessages = {};   // Dictionary to store all preset bot messages
-botMessages["start_msg"] = new AI_Message("Hello! How can I help you for this tour today?", "G05");
+botMessages["start_msg"] = new AI_Message("Hello! How can I help you today?", "G05");
 botMessages["default_msgs"] = [new AI_Message("I am not sure what you have sent, please try again."),
                                 new AI_Message("I don't quite understand what you are saying, please try again.")];
 botMessages["processing_msg"] = new AI_Message("Thank you! Please wait while I'm processing your question and I will reply to you shortly.");
@@ -260,6 +260,7 @@ function initAIPlayerEvent() {
             preloadCount++;
             if(isPreloadingFinished())
                 document.dispatchEvent(new Event("AI_INITIALIZED"));
+                document.dispatchEvent(new Event('PRELOAD_FINISHED'));
             break;
         case AIEventType.AICLIPSET_PLAY_STARTED:
             typeName = 'AICLIPSET_PLAY_STARTED';

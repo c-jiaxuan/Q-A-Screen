@@ -9,7 +9,7 @@ body {
 
 body::before {
     content: "";
-    background: url('./img/changi-chapel-courtyard.jpg') no-repeat center center;
+    background: url('./img/gmaps_panasonic.png') no-repeat center center;
     background-size: cover;
     position: absolute;
     top: 0;
@@ -146,7 +146,7 @@ body::before {
     color: rgb(32, 32, 32);
 }
 .message.bot span {
-    background: #aa8200;
+    background: #188eed;
     color: rgb(255, 255, 255);
 }
 .message-time {
@@ -161,7 +161,7 @@ body::before {
     margin: 5px 0;
     height: auto;
     width: 100%;
-    background: #aa8200;
+    background: #188eed;
     color: white;
     border: none;
     border-radius: 5px;
@@ -188,7 +188,7 @@ body::before {
 }
 
 .button:hover {
-    background: #806200;
+    background: #0f5995;
 }
 
 .button1 {

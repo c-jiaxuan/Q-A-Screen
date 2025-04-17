@@ -33,6 +33,8 @@ function beginChat() {
 }
 
 function processUserMessage(msg){
+    console.log("Processing user message: " + msg);
+    
     if (msg == '') 
     {
         // Reset all parameters
@@ -211,10 +213,29 @@ function botMessage(setMessage, gesture, delay) {
 }
 
 function formatResponse(jsonData) {
-    const reason = jsonData.output.reason;
+    let reason = jsonData.output.reason;
     const choice = jsonData.output.choice;
 
-    return `You should select option ${choice} because ${reason.charAt(0).toLowerCase()}${reason.slice(1)}`;
+    // Replace "the user" with "you"
+    reason = reason.replace(/\b[Tt]he user\b/g, "you");
+
+    // Replace third-person pronouns with second-person
+    reason = reason.replace(/\bthey are\b/g, "you are");
+    reason = reason.replace(/\bthey were\b/g, "you were");
+    reason = reason.replace(/\bthey have\b/g, "you have");
+    reason = reason.replace(/\bthey\b/g, "you");
+    reason = reason.replace(/\bthem\b/g, "you");
+    reason = reason.replace(/\btheir\b/g, "your");
+    reason = reason.replace(/\bthemselves\b/g, "yourself");
+
+    // Fix verb agreement after replacements (very basic handling)
+    reason = reason.replace(/\byou needs\b/g, "you need");
+    reason = reason.replace(/\byou has\b/g, "you have");
+
+    // Lowercase the first character if needed
+    reason = reason.charAt(0).toLowerCase() + reason.slice(1);
+
+    return `You should select option ${choice} because ${reason}`;
 }
 
 function createMsgBubble(userID, message) {

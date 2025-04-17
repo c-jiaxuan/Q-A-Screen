@@ -1,9 +1,9 @@
 var bot_question = 'Do you need any help with your meals or feeding?';
 var user_input = null;
-var bot_choices = { 'A': 'Yes, I need full assistance to eat. Such as someone actively needing to feed me.',
-                    'B': 'I need some help, like cutting or opening packaging. Does not include using cutlery such as chopsticks, spoons, forks and others',
-                    'C': 'No help needed, I can manage fully on my own.', 
-                    'D': 'I’m currently not feeling like eating.'};
+var bot_choices = { 'Dependant': 'Yes, I need full assistance to eat. Such as someone actively needing to feed me.',
+                    'Needs-Assistance': 'I need some help, like cutting or opening packaging. Does not include using cutlery such as chopsticks, spoons, forks and others',
+                    'Independant': 'No help needed, I can manage fully on my own.', 
+                    'Unable to assess': 'Unable to classify.'};
 
 var llmClassifyLink = 'https://voicewebapp.straivedemo.com/classify';
 

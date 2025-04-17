@@ -1,22 +1,11 @@
-// LLMs API Settings
-// Change these to change the LLMs response
-var bot_app = "sgroots"; // Don't change this
-var bot_tone = "Succinct"; // Professional, Casual, Enthusiastic, Informational, Funny, Succinct
-var bot_format = "Summary"; // Summary, Report, Bullet Points, LinkedIn Post, Email
-var bot_language = "English";
-var bot_followup = true;
+var bot_question = 'Do you need any help with your meals or feeding?';
+var user_input = null;
+var bot_choices = { 'A': 'Yes, I need full assistance to eat. Such as someone actively needing to feed me.',
+                    'B': 'I need some help, like cutting or opening packaging. Does not include using cutlery such as chopsticks, spoons, forks and others',
+                    'C': 'No help needed, I can manage fully on my own.', 
+                    'D': 'I’m currently not feeling like eating.'};
 
-var llm_summarise_api_url = 'https://gramener.com/docsearch/summarize';
-var llm_similarity_api_url = 'https://gramener.com/docsearch/similarity';
-
-// For similarity
-let result;
-// Retrieve the top 3 similar documents
-const maxSelected = 10;
-// var context = "";
-
-// Used to store followup questions
-var follow_up_questions = null;
+var llmClassifyLink = 'https://voicewebapp.straivedemo.com/classify';
 
 var processing_status = null;
 var oneTime_txt_bubble = null;
@@ -75,90 +64,24 @@ function sendMessageFromSpeech(message){
 }
 
 async function sendToLLM(message) {
-    sentToSimilarity(message);
-}
-
-async function sentToSimilarity(message) {
-    //const similarityResult = await fetch(llm_similarity_api_url + new URLSearchParams(form).toString()).then((d) => d.json());
-
-    if (message == '') {
-        // If there is no message, return
-        console.log("No message detected, returning...");
-        var res = getRandomElement(botMessages['default_msgs']);
-        createMsgBubble(BOT_BUBBLE, res.message);
-        speak(res.message, res.gesture);
-        return;
-    }
-
-    var queryString = llm_similarity_api_url + "?app=" + bot_app + "&q=" + message + "&k=" + maxSelected;
-    console.log("queryString = " + queryString);
-
-    fetch(queryString, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())  // Convert response to JSON
-    .then(data => {
-        console.log(data); 
-
-        result = { content: "" };
-        Object.assign(result, data);
-
-        // Assign relevance to each document based on the score
-        result.matches.forEach((doc) => (doc.relevance = (1.5 - doc.score) / (1.5 - 0.8)));
-        // Sort by relevance
-        result.matches.sort((a, b) => b.relevance - a.relevance);
-
-        result.links = [];
-        result.similarity.forEach((values, i) =>
-          values.forEach((similarity, j) => {
-            if (i != j) result.links.push({ source: result.matches[i], target: result.matches[j], similarity });
-          }),
-        );
-
-        // Start by showing the top few links
-        const similarities = result.links.map((d) => d.similarity).sort((a, b) => b - a);
-        var similarityValue = similarities[Math.min(50, similarities.length - 1)];
-        
-        //console.log("similarityValue = " + similarityValue);
-        //console.log("result = " + JSON.stringify(result));
-
-        // Safely extract message content   
-        // let context = data.matches?.[0]?.page_content || "No content available";
-        // let score = data.similarity?.[0]?.[0] || "No scores available";
-
-        sendToSummarize(message, context);
-    })    // Handle the data
-    .catch(error => console.error('Error:', error)); // Handle errors
+    sendToClassify(message);
 }
 
 // Send user question to LLMs => retrieve and process the response
-function sendToSummarize(message, context) {
+function sendToClassify(message) {
     console.log("posting API...");
     // Display processing status
     createTempBubble(BOT_BUBBLE, "Retrieving Answer", 0);
 
-    result.content = "";
-    result.done = false;
-
     //Setup request body
     const payload = {
-        "app": bot_app,
-        "q": message + ". Answer in 2 full and very short sentences. Don't put the title in front.",
-        "context": result.matches
-                .slice(0, maxSelected)
-                .map((d, i) => `DOC_ID: ${i + 1}\nTITLE: ${d.metadata.h1}\n${d.page_content}\n`)
-                .join("\n"),
-        "Followup": bot_followup,
-        "Tone": bot_tone,
-        "Format": bot_format,
-        "Language": bot_language
+        "question": bot_question,
+        "user_input": message,
+        "choices": bot_choices,
     };
 
     // Make API call
-    fetch(llm_summarise_api_url, {
+    fetch(llmClassifyLink, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -177,27 +100,9 @@ function sendToSummarize(message, context) {
     .then(data => {
         console.log('Success:', data);
 
-        // Safely extract message content
-        let messageContent = data.choices?.[0]?.message?.content || "No content available";
+        var botResponse = formatResponse(data);
 
-        // Remove follow-up questions header and inline references like [[1](#1)]
-        messageContent = messageContent.replace(/\*\*Follow-up questions:\*\*/i, '').trim();
-        messageContent = messageContent.replace(/\[\[\d+\]\(#\d+\)\]/g, '').trim();
-
-        // Extract follow-up questions (optional, if present)
-        var followUpQuestions = messageContent.match(/- \[.*?\]/g)?.map(question => question.slice(3, -1)) || [];
-
-        // Remove follow-up questions from the main content
-        if (followUpQuestions.length > 0) {
-            var splitIndex = messageContent.indexOf('- ['); // Find where follow-up starts
-            messageContent = messageContent.substring(0, splitIndex).trim(); // Keep only the main content
-        }
-
-        // Output results
-        console.log("Cleaned Message Content:", messageContent);
-        console.log("Follow-Up Questions:", followUpQuestions);
-
-        processBotMessage(messageContent, followUpQuestions);
+        processBotMessage(botResponse);
     })
     .catch(error => {
         console.error('Error:', error);
@@ -211,7 +116,7 @@ function updateChatbotDelay(isDelay){
 }
 
 // Process the message from LLMs to display to user
-function processBotMessage(answer, followUpQns){
+function processBotMessage(answer){
     //LLMs doesn't reply anything => didn't understand the question
     if (answer == "")
     {
@@ -230,29 +135,6 @@ function processBotMessage(answer, followUpQns){
             deleteTempBubble();
             //Display bot message to user
             createMsgBubble(BOT_BUBBLE, answer);
-
-            //Store follow up questions for future usage
-            follow_up_questions = followUpQns;
-            if (follow_up_questions != null) {
-                var followupMessageElement = createMsgBubble(BOT_BUBBLE, "");
-                var followupSpan = followupMessageElement.querySelector('span');
-    
-                let header = document.createElement("p");
-                //**Add avatar talking**
-                header.textContent = "Some common follow-up questions:";
-                header.style.fontWeight = "bold"; // Make header bold
-                followupSpan.append(header);
-                
-                // Loop through follow-up questions and create bullet points
-                follow_up_questions.forEach(question => {
-                    let li = document.createElement("li");
-                    li.textContent = question;
-                    followupSpan.appendChild(li);
-                });
-                
-                console.log("Follow up questions found, sending follow up question...");
-                follow_up_questions = null;
-            }
 
             chatBody.scrollTop = chatBody.scrollHeight;
         }, LLMdelay);
@@ -310,27 +192,6 @@ function botMessage(setMessage, gesture, delay) {
     
                 deleteTempBubble();
     
-                if (follow_up_questions != null) {
-                    const followupMessageElement = createMsgBubble(BOT_BUBBLE, "");
-                    const followupSpan = followupMessageElement.querySelector('span');
-    
-                    let header = document.createElement("p");
-                    //**Add avatar talking**
-                    header.textContent = "Some common follow-up questions:";
-                    header.style.fontWeight = "bold"; // Make header bold
-                    followupSpan.append(header);
-                    
-                    // Loop through follow-up questions and create bullet points
-                    follow_up_questions.forEach(question => {
-                        let li = document.createElement("li");
-                        li.textContent = question;
-                        followupSpan.appendChild(li);
-                    });
-                    console.log("Follow up questions found, sending follow up question...");
-                    //botMessage(g_follow_up_questions[0]);
-                    follow_up_questions = null;
-                }
-    
                 // Scroll to the bottom
                 chatBody.scrollTop = chatBody.scrollHeight;
             }
@@ -344,29 +205,16 @@ function botMessage(setMessage, gesture, delay) {
 
         deleteTempBubble();
 
-        if (follow_up_questions != null) {
-            const followupMessageElement = createMsgBubble(USER_BUBBLE, "");
-            const followupSpan = followupMessageElement.querySelector('span');
-
-            let header = document.createElement("p");
-            //**Add avatar talking**
-            header.textContent = "Some common follow-up questions:";
-            header.style.fontWeight = "bold"; // Make header bold
-            followupSpan.append(header);
-            
-            // Loop through follow-up questions and create bullet points
-            follow_up_questions.forEach(question => {
-                let li = document.createElement("li");
-                li.textContent = question;
-                followupSpan.appendChild(li);
-            });
-            console.log("Follow up questions found, sending follow up question...");
-            follow_up_questions = null;
-        }
-
         // Scroll to the bottom
         chatBody.scrollTop = chatBody.scrollHeight;
     }
+}
+
+function formatResponse(jsonData) {
+    const reason = jsonData.output.reason;
+    const choice = jsonData.output.choice;
+
+    return `You should select option ${choice} because ${reason.charAt(0).toLowerCase()}${reason.slice(1)}`;
 }
 
 function createMsgBubble(userID, message) {

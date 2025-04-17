@@ -54,8 +54,8 @@ let isAudioPreviewInit = false
 const customVoicePackFemale = "google/en-US/FEMALE_en-US-Standard-F";
 const customVoicePackMale = "google/en-US/MALE_en-US-Standard-D";
 
-const appId = "deepbrain.io";
-const userKey = "bb872cb0-c6da-4c32-b68d-15ff95679837";
+const appId = "demo-637l.onrender.com";
+const userKey = "e7612a63-0da4-479b-8a7d-a7ab363c4d2a";
 
 
 class AI_Message {

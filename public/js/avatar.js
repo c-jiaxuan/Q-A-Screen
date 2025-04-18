@@ -67,7 +67,7 @@ class AI_Message {
 }
 
 let botMessages = {};   // Dictionary to store all preset bot messages
-botMessages["start_msg"] = new AI_Message("Do you need any help with your meals or feeding?", "G05");
+botMessages["start_msg"] = new AI_Message("Please select an ADL question you are unsure of. The default option is the first question.", "G05");
 botMessages["default_msgs"] = [new AI_Message("I am not sure what you have sent, please try again."),
                                 new AI_Message("I don't quite understand what you are saying, please try again.")];
 botMessages["processing_msg"] = new AI_Message("Thank you! Please wait while I'm processing your question and I will reply to you shortly.");
@@ -366,7 +366,7 @@ function initAIPlayerEvent() {
 
 // =========================== AIPlayer Function ================================ //
 
-async function speak(text, gst) {
+async function speak(text, gst, pre_ans_msg) {
     if(isUsingAvatar){
         await refreshTokenIFExpired();
 
@@ -376,10 +376,12 @@ async function speak(text, gst) {
         {
             AI_PLAYER.send({ text: text, gst: gst });
         }
-        else
+        else 
         {
-            AI_PLAYER.send({ text: botMessages["pre_answer_msg"].message, gst: botMessages["pre_answer_msg"].gesture });
-    
+            if (pre_ans_msg) {
+                AI_PLAYER.send({ text: botMessages["pre_answer_msg"].message, gst: botMessages["pre_answer_msg"].gesture });
+            }
+            
             var msgToSpeak = breakdownSpeak(text);
             sendToAvatar(msgToSpeak, 0);
         }

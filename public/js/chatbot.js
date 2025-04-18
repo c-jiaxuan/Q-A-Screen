@@ -1,9 +1,42 @@
-var bot_question = 'Do you need any help with your meals or feeding?';
-var user_input = null;
-var bot_choices = { 'Dependant': 'Yes, I need full assistance to eat. Such as someone actively needing to feed me.',
-                    'Needs-Assistance': 'I need some help, like cutting or opening packaging. Does not include using cutlery such as chopsticks, spoons, forks and others',
-                    'Independant': 'No help needed, I can manage fully on my own.', 
-                    'Unable to assess': 'Unable to classify.'};
+const adl_questions = [
+    {
+        question: 'Do you need any help with your meals or feeding?',
+        choices: { 'Dependant': 'Yes, I need full assistance to eat. Such as someone actively needing to feed me.',
+            'Needs-Assistance': 'I need some help, like cutting or opening packaging. Does not include using cutlery such as chopsticks, spoons, forks and others',
+            'Independant': 'No help needed, I can manage fully on my own.', 
+            'Unable to assess': 'Unable to classify.'}
+    },
+    {
+        question: 'Do you need any help with dressing or grooming?',
+        choices: { 'Dependant': 'Yes, I need full assistance to dress and groom myself',
+            'Needs-Assistance': 'I need some help',
+            'Independant': 'No help needed, I can manage fully on my own.', 
+            'Unable to assess': 'Unable to classify.'}
+    },
+    {
+        question: 'Do you need any help with your toileting or bathing?',
+        choices: { 'Dependant': 'Yes, I need full assistance to toileting and bathing, such as someone to bathe me and clean after',
+            'Needs-Assistance': 'I need some help',
+            'Independant': 'No help needed, I can manage fully on my own.', 
+            'Unable to assess': 'Unable to classify.'}
+    },
+    {
+        question: 'Do you need any help with turning in bed?',
+        choices: { 'Dependant': 'Yes, I need full assistance to turning in bed, such as having a helper to turn me',
+            'Needs-Assistance': 'I need some help, such as holding onto the bed frame or by using some assistive devices',
+            'Independant': 'No help needed, I can manage fully on my own.', 
+            'Unable to assess': 'Unable to classify.'}
+    },
+    {
+        question: 'Do you need any help with ambulation?',
+        choices: { 'Dependant': 'Yes, I need full assistance with ambulation. Such as requiring someone to push my wheelchair',
+            'Needs-Assistance': 'I need some help, like a walking stick or a wheelchair I can wheel on my own',
+            'Independant': 'No help needed, I can manage fully on my own.', 
+            'Unable to assess': 'Unable to classify.'}
+    }
+]
+
+var selectedQuestion = adl_questions.Q1;
 
 var llmClassifyLink = 'https://voicewebapp.straivedemo.com/classify';
 
@@ -29,7 +62,13 @@ function loadChat() {
 
 function beginChat() {
     deleteTempBubble();
-    botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture, false);
+    botMessage(botMessages["start_msg"].message, botMessages["start_msg"].gesture, false, false);
+}
+
+function setQuestion(question) {
+    selectedQuestion = adl_questions[question];
+    console.log(selectedQuestion);
+    botMessage(selectedQuestion.question, '', false, false);
 }
 
 function processUserMessage(msg){
@@ -77,9 +116,9 @@ function sendToClassify(message) {
 
     //Setup request body
     const payload = {
-        "question": bot_question,
+        "question": selectedQuestion.question,
         "user_input": message,
-        "choices": bot_choices,
+        "choices": selectedQuestion.choices,
     };
 
     // Make API call
@@ -127,7 +166,7 @@ function processBotMessage(answer){
     }
     else
     {
-        speak(botMessages["processing_msg"].message);
+        speak(botMessages["processing_msg"].message, '', true);
 
         // Show processing status
         createTempBubble(BOT_BUBBLE, "Processing the answer", 0);
@@ -146,12 +185,12 @@ function processBotMessage(answer){
     chatBody.scrollTop = chatBody.scrollHeight;
 
     //Send to avatar to speak
-    speak(answer);
+    speak(answer, '', false);
 }
 
 let flagTriggered = false;
 // Takes in a message to be sent by the bot
-function botMessage(setMessage, gesture, delay) {
+function botMessage(setMessage, gesture, delay, pre_ans_msg) {
     if(delay)
     {
         registerNextSpeak(setMessage.toString());
@@ -201,7 +240,7 @@ function botMessage(setMessage, gesture, delay) {
     }
     else
     {
-        speak(setMessage.toString(), gesture);
+        speak(setMessage.toString(), gesture, pre_ans_msg);
         showRecordBtn();
         createMsgBubble(BOT_BUBBLE, setMessage);
 

@@ -63,7 +63,14 @@
           Processing...</button>
       </div> -->
     </div>
-    <div id="AIPlayerWrapper"></div>
+
+    <div id="avatar-videos-div" class="hidden">
+      <video id="idleVideo" src="./vid/Avatar/idle_avatar_circle.mp4" class="avatar-video" autoplay muted loop></video>
+      <video id="talkingVideo" src="./vid/Avatar/talking avatar circle_mute.mp4" class="avatar-video" muted></video>
+    </div>
+
+    <div id="AIPlayerWrapper" class="hidden"></div>
+
     <audio id="audioPlayback">
       <source id="audioSource" type="audio/mp3" src="" />
     </audio>
@@ -82,6 +89,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
   <script src="./js/script.js"></script>
   <script src="./js/chatbot.js"></script>
   <script src="./js/google-stt.js"></script>
+  <script src="./js/avatar-video-controller.js"></script>
   <script src="./js/avatar.js"></script>
   <script src="./js/start-screen-overlay.js"></script>
   <script src="./js/polly.js"></script>

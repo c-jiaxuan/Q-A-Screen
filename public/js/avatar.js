@@ -385,6 +385,7 @@ async function speak(text, gst) {
         }
     }
     else{
+        document.dispatchEvent(new Event('AVATAR_SPEAK'));
         speakText(text);
     }
 }
@@ -517,17 +518,22 @@ function isPreloadMessage(msg){
     return false;
 }
 
-
 function UseAvatar(){
     isUsingAvatar = true;
+    wrapper.classList.remove('hidden');
     $("#use-ava-btn").css("background", "#5d971e");
     $("#use-tts-btn").css("background", "#aa8200");
     updateChatbotDelay(true);
+
+    document.dispatchEvent(new Event('USE_AVATAR'));
 }
 
 function UseTTS(){
     isUsingAvatar = false;
+    wrapper.classList.add('hidden');
     $("#use-tts-btn").css("background", "#5d971e");
     $("#use-ava-btn").css("background", "#aa8200");
     updateChatbotDelay(false);
+
+    document.dispatchEvent(new Event('USE_TTS'));
 }

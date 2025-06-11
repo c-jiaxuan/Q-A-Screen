@@ -20,6 +20,10 @@ body::before {
     z-index: -1; /* Place it behind the content */
 }
 
+.hidden {
+    display: none;
+}
+
 .logo-container {
     position: absolute; /* Positions it relative to the viewport */
     top: 20px; /* Distance from the top */
@@ -254,4 +258,12 @@ body::before {
     font-weight: bold; /* Make it bold */
     color: #333; /* Darker color for visibility */
     margin-bottom: 15px; /* Add spacing */
+}
+
+.avatar-video {
+    position: absolute;
+    top: 0px;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
 }

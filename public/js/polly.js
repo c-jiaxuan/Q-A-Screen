@@ -10,7 +10,7 @@ function speakText(speech) {
         SampleRate: "16000",
         Text: speech,
         TextType: "text",
-        VoiceId: "Danielle"
+        VoiceId: "Amy"
     };
     //speechParams.Text = document.getElementById("textEntry").value;
 
